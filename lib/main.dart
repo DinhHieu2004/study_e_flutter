@@ -1,43 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // ĐÃ ĐỔI
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/home_page.dart';
 import 'pages/vocabulary_page.dart';
 import 'pages/exercise_page.dart';
 import 'pages/profile_page.dart';
-import 'controllers/quiz_controller.dart'; // Vẫn giữ controller
 
-// KHAI BÁO PROVIDER VỚI RIVERPOD
-// Sử dụng ChangeNotifierProvider để quản lý QuizController (được kế thừa từ ChangeNotifier)
-final quizControllerProvider = ChangeNotifierProvider<QuizController>((ref) {
-  return QuizController();
-});
-
+void main() {
+  runApp(const ProviderScope(child: MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainLayout(),
+      title: "English App",
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MainLayout(),
     );
   }
 }
 
-// =========================================================================
-void main() {
-  // BẮT BUỘC BỌC ỨNG DỤNG BẰNG ProviderScope
-  runApp(
-    const ProviderScope( // <--- BƯỚC CẦN THIẾT CHO RIVERPOD
-      child: MyApp(),
-    ),
-  );
-}
-// =========================================================================
-
-// ... Giữ nguyên MainLayout vì nó không sử dụng Provider trực tiếp
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
 
@@ -47,7 +32,7 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
-  
+
   final List<Widget> _pages = const [
     HomePage(),
     VocabularyPage(),
@@ -58,30 +43,55 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("English App"),
-        centerTitle: true,
-      ),
       body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (value) {
-          setState(() {
-            _currentIndex = value;
-          });
-        },
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.book), label: "Từ vựng"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.edit), label: "Bài tập"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person), label: "Tôi"),
-        ],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _currentIndex,
+            selectedItemColor: Colors.blue,
+            unselectedItemColor: Colors.grey,
+
+            onTap: (index) {
+              setState(() => _currentIndex = index);
+            },
+
+            items: [
+              BottomNavigationBarItem(
+                icon: Image.asset("assets/icons/bottom_btn1.png", width: 16),
+                label: "Home",
+              ),
+              BottomNavigationBarItem(
+                icon: Image.asset("assets/icons/bottom_btn2.png", width: 16),
+                label: "Learn",
+              ),
+              BottomNavigationBarItem(
+                icon: Image.asset("assets/icons/bottom_btn3.png", width: 16),
+                label: "Quiz",
+              ),
+              BottomNavigationBarItem(
+                icon: Image.asset("assets/icons/bottom_btn4.png", width: 16),
+                label: "Profile",
+              ),
+              BottomNavigationBarItem(
+                icon: Image.asset("assets/icons/ic_statistics.png",width: 16,height: 16,),
+                label: "Statistical",
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
