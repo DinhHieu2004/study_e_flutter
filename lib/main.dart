@@ -1,43 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // ĐÃ ĐỔI
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'pages/search_page.dart';
 import 'pages/home_page.dart';
 import 'pages/vocabulary_page.dart';
 import 'pages/exercise_page.dart';
 import 'pages/profile_page.dart';
-import 'controllers/quiz_controller.dart'; // Vẫn giữ controller
 
-// KHAI BÁO PROVIDER VỚI RIVERPOD
-// Sử dụng ChangeNotifierProvider để quản lý QuizController (được kế thừa từ ChangeNotifier)
-final quizControllerProvider = ChangeNotifierProvider<QuizController>((ref) {
-  return QuizController();
-});
-
+void main() {
+  runApp(const ProviderScope(child: MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainLayout(),
+      title: "English App",
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0066FF)),
+        useMaterial3: false, // tùy bạn
+      ),
+      home: const MainLayout(),
     );
   }
 }
 
-// =========================================================================
-void main() {
-  // BẮT BUỘC BỌC ỨNG DỤNG BẰNG ProviderScope
-  runApp(
-    const ProviderScope( // <--- BƯỚC CẦN THIẾT CHO RIVERPOD
-      child: MyApp(),
-    ),
-  );
-}
-// =========================================================================
-
-// ... Giữ nguyên MainLayout vì nó không sử dụng Provider trực tiếp
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
 
@@ -47,10 +37,11 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
-  
+
   final List<Widget> _pages = const [
     HomePage(),
     VocabularyPage(),
+    SearchPage(),
     ExercisePage(),
     ProfilePage(),
   ];
@@ -58,30 +49,64 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("English App"),
-        centerTitle: true,
-      ),
       body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (value) {
-          setState(() {
-            _currentIndex = value;
-          });
-        },
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.book), label: "Từ vựng"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.edit), label: "Bài tập"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person), label: "Tôi"),
-        ],
+
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: BottomNavigationBar(
+            backgroundColor: Colors.white,
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _currentIndex,
+            selectedItemColor: Colors.black,
+            unselectedItemColor: Colors.grey,
+            showUnselectedLabels: true,
+            elevation: 0,
+
+            onTap: (index) => setState(() => _currentIndex = index),
+
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
+                label: "Home",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.menu_book_outlined),
+                activeIcon: Icon(Icons.menu_book),
+                label: "Courses",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.search),
+                label: "Search",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.article_outlined),
+                activeIcon: Icon(Icons.article),
+                label: "Exercise",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline),
+                activeIcon: Icon(Icons.person),
+                label: "Me",
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

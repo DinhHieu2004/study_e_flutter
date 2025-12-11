@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
-// Đổi từ 'package:provider/provider.dart' sang
-import 'package:flutter_riverpod/flutter_riverpod.dart'; 
-import '../controllers/quiz_controller.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../providers/quiz_provider.dart';
 import 'quiz_question_page.dart';
 
-// Import Provider đã khai báo từ main.dart
-import '../main.dart'; // Giả định quizControllerProvider nằm trong main.dart
-
-// ĐỔI TỪ StatefulWidget SANG ConsumerStatefulWidget
 class ExercisePage extends ConsumerStatefulWidget {
   const ExercisePage({super.key});
 
   @override
-  // ĐỔI TỪ State<ExercisePage> SANG ConsumerState<ExercisePage>
   ConsumerState<ExercisePage> createState() => _ExercisePageState();
 }
 
-// ĐỔI TỪ State<ExercisePage> SANG ConsumerState<ExercisePage>
 class _ExercisePageState extends ConsumerState<ExercisePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
@@ -41,7 +35,6 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
     );
 
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-
     _controller.forward();
   }
 
@@ -52,12 +45,11 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   }
 
   void startQuiz() async {
-  
-    final quiz = ref.read(quizControllerProvider); 
+    final quizNotifier = ref.read(quizProvider.notifier);
 
     setState(() => isLoading = true);
 
-    await quiz.fetchQuestions(
+    await quizNotifier.fetchQuestions(
       amount: amount,
       difficulty: selectedDifficulty!,
       type: selectedType!,
@@ -75,7 +67,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
   @override
   Widget build(BuildContext context) {
-   
+    final quizState = ref.watch(quizProvider); // dùng nếu muốn hiển thị loading trong tương lai
 
     return FadeTransition(
       opacity: _fade,
@@ -90,7 +82,6 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 20),
 
             // Amount input
@@ -144,7 +135,6 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
             const SizedBox(height: 30),
 
-            // START BUTTON
             SizedBox(
               width: double.infinity,
               height: 48,
