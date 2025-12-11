@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'pages/home_page.dart';
 import 'pages/vocabulary_page.dart';
 import 'pages/exercise_page.dart';
@@ -17,7 +18,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "English App",
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0066FF)),
+        useMaterial3: false, // tùy bạn
+      ),
       home: const MainLayout(),
     );
   }
@@ -35,15 +40,17 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _pages = const [
     HomePage(),
-    VocabularyPage(),
-    ExercisePage(),
-    ProfilePage(),
+    VocabularyPage(), // Courses
+    ExercisePage(), // Review
+    ProfilePage(), // Me
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_currentIndex],
+
+      // ======= Bottom Nav giống template =======
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -51,43 +58,47 @@ class _MainLayoutState extends State<MainLayout> {
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
           ),
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: Offset(0, -2),
+            ),
+          ],
         ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
+        child: SafeArea(
+          top: false,
           child: BottomNavigationBar(
+            backgroundColor: Colors.white,
             type: BottomNavigationBarType.fixed,
             currentIndex: _currentIndex,
-            selectedItemColor: Colors.blue,
-            unselectedItemColor: Colors.grey,
+            selectedItemColor: Colors.black, // màu icon khi chọn
+            unselectedItemColor: Colors.grey, // màu icon khi không chọn
+            showUnselectedLabels: true,
+            elevation: 0,
 
-            onTap: (index) {
-              setState(() => _currentIndex = index);
-            },
+            onTap: (index) => setState(() => _currentIndex = index),
 
-            items: [
+            items: const [
               BottomNavigationBarItem(
-                icon: Image.asset("assets/icons/bottom_btn1.png", width: 16),
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
                 label: "Home",
               ),
               BottomNavigationBarItem(
-                icon: Image.asset("assets/icons/bottom_btn2.png", width: 16),
-                label: "Learn",
+                icon: Icon(Icons.menu_book_outlined),
+                activeIcon: Icon(Icons.menu_book),
+                label: "Courses",
               ),
               BottomNavigationBarItem(
-                icon: Image.asset("assets/icons/bottom_btn3.png", width: 16),
-                label: "Quiz",
+                icon: Icon(Icons.article_outlined),
+                activeIcon: Icon(Icons.article),
+                label: "Review",
               ),
               BottomNavigationBarItem(
-                icon: Image.asset("assets/icons/bottom_btn4.png", width: 16),
-                label: "Profile",
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset("assets/icons/ic_statistics.png",width: 16,height: 16,),
-                label: "Statistical",
+                icon: Icon(Icons.person_outline),
+                activeIcon: Icon(Icons.person),
+                label: "Me",
               ),
             ],
           ),
