@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/study_progress_circle.dart';
+import '../widgets/courses/course_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -23,6 +24,8 @@ class HomePage extends StatelessWidget {
               _buildStudyCard(),
               const SizedBox(height: 16),
               _buildPromoBanner(),
+              const SizedBox(height: 24),
+              _buildCoursesSection(),
             ],
           ),
         ),
@@ -153,7 +156,6 @@ class HomePage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Text bên trái
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,7 +186,6 @@ class HomePage extends StatelessWidget {
 
           const SizedBox(width: 12),
 
-          // Nút bên phải
           TextButton(
             style: TextButton.styleFrom(
               backgroundColor: Colors.white,
@@ -205,6 +206,51 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCoursesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Text(
+              "Courses",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+            Row(
+              children: [
+                Text(
+                  "See all",
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                SizedBox(width: 4),
+                Icon(Icons.arrow_forward, size: 14),
+              ],
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 12),
+
+        SizedBox(
+          height: 110,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: const [
+              CourseCard(title: "Travel", imagePath: "assets/imgs/travel.png"),
+              CourseCard(title: "Hangout", imagePath: "assets/imgs/hangout.png"),
+              CourseCard(title: "Business", imagePath: "assets/imgs/business.png"),
+              CourseCard(title: "friend", imagePath: "assets/imgs/friend.png"),
+              CourseCard(title: "lifestyle", imagePath: "assets/imgs/lifestyle.png"),
+              CourseCard(title: "music", imagePath: "assets/imgs/music.png"),
+              CourseCard(title: "film", imagePath: "assets/imgs/film.png"),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
