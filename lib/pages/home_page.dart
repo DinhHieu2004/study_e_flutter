@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/widgets/videos/video_card.dart';
 import '../widgets/study_progress_circle.dart';
 import '../widgets/courses/course_card.dart';
 
@@ -26,6 +27,8 @@ class HomePage extends StatelessWidget {
               _buildPromoBanner(),
               const SizedBox(height: 24),
               _buildCoursesSection(),
+              const SizedBox(height: 24),
+              _buildUserExperienceSection(),
             ],
           ),
         ),
@@ -241,12 +244,70 @@ class HomePage extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             children: const [
               CourseCard(title: "Travel", imagePath: "assets/imgs/travel.png"),
-              CourseCard(title: "Hangout", imagePath: "assets/imgs/hangout.png"),
-              CourseCard(title: "Business", imagePath: "assets/imgs/business.png"),
+              CourseCard(
+                title: "Hangout",
+                imagePath: "assets/imgs/hangout.png",
+              ),
+              CourseCard(
+                title: "Business",
+                imagePath: "assets/imgs/business.png",
+              ),
               CourseCard(title: "friend", imagePath: "assets/imgs/friend.png"),
-              CourseCard(title: "lifestyle", imagePath: "assets/imgs/lifestyle.png"),
+              CourseCard(
+                title: "lifestyle",
+                imagePath: "assets/imgs/lifestyle.png",
+              ),
               CourseCard(title: "music", imagePath: "assets/imgs/music.png"),
               CourseCard(title: "film", imagePath: "assets/imgs/film.png"),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUserExperienceSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Text(
+              "User experience video",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+            Row(
+              children: [
+                Text(
+                  "See all",
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                SizedBox(width: 4),
+                Icon(Icons.arrow_forward, size: 14),
+              ],
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 12),
+
+        SizedBox(
+          height: 180,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: const [
+              VideoCard(
+                name: "Amanda roch",
+                isPrimary: true,
+                imagePath: "assets/imgs/amanda.png",
+              ),
+              SizedBox(width: 12),
+              VideoCard(
+                name: "Tarkan orhan",
+                isPrimary: false,
+                imagePath: "assets/imgs/tarkan.png",
+              ),
             ],
           ),
         ),
