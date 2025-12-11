@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'pages/search_page.dart';
 import 'pages/home_page.dart';
 import 'pages/vocabulary_page.dart';
 import 'pages/exercise_page.dart';
@@ -40,9 +40,10 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _pages = const [
     HomePage(),
-    VocabularyPage(), // Courses
-    ExercisePage(), // Review
-    ProfilePage(), // Me
+    VocabularyPage(),
+    SearchPage(),
+    ExercisePage(),
+    ProfilePage(),
   ];
 
   @override
@@ -50,7 +51,6 @@ class _MainLayoutState extends State<MainLayout> {
     return Scaffold(
       body: _pages[_currentIndex],
 
-      // ======= Bottom Nav giống template =======
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -72,8 +72,8 @@ class _MainLayoutState extends State<MainLayout> {
             backgroundColor: Colors.white,
             type: BottomNavigationBarType.fixed,
             currentIndex: _currentIndex,
-            selectedItemColor: Colors.black, // màu icon khi chọn
-            unselectedItemColor: Colors.grey, // màu icon khi không chọn
+            selectedItemColor: Colors.black,
+            unselectedItemColor: Colors.grey,
             showUnselectedLabels: true,
             elevation: 0,
 
@@ -91,9 +91,13 @@ class _MainLayoutState extends State<MainLayout> {
                 label: "Courses",
               ),
               BottomNavigationBarItem(
+                icon: Icon(Icons.search),
+                label: "Search",
+              ),
+              BottomNavigationBarItem(
                 icon: Icon(Icons.article_outlined),
                 activeIcon: Icon(Icons.article),
-                label: "Review",
+                label: "Exercise",
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),
