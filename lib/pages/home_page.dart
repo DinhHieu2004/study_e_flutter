@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/widgets/lessons/lesson_card.dart';
 import 'package:flutter_application_1/widgets/videos/video_card.dart';
 import '../widgets/study_progress_circle.dart';
 import '../widgets/courses/course_card.dart';
@@ -29,6 +30,8 @@ class HomePage extends StatelessWidget {
               _buildCoursesSection(),
               const SizedBox(height: 24),
               _buildUserExperienceSection(),
+              const SizedBox(height: 24),
+              _buildRecommendedLessonSection(),
             ],
           ),
         ),
@@ -314,4 +317,60 @@ class HomePage extends StatelessWidget {
       ],
     );
   }
+
+  Widget _buildRecommendedLessonSection() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: const [
+          Text(
+            "Recommended lesson",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          Row(
+            children: [
+              Text(
+                "See all",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(width: 4),
+              Icon(Icons.arrow_forward, size: 14),
+            ],
+          ),
+        ],
+      ),
+
+      const SizedBox(height: 12),
+
+      SizedBox(
+        height: 160,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: const [
+            LessonCard(
+              title: "How to Conversation\nwith your Friends",
+              subtitle: "Cafe vocabulary",
+              imagePath: "assets/imgs/cafe.png", 
+            ),
+            SizedBox(width: 12),
+            LessonCard(
+              title: "Business small talk",
+              subtitle: "Office conversation",
+              imagePath: "assets/imgs/office.png",
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
 }
