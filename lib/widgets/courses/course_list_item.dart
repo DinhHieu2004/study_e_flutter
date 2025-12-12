@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+enum CourseCardStatus { normal, active }
+
 class CourseListItem extends StatelessWidget {
   final String imagePath;
   final String topic;
@@ -8,6 +10,7 @@ class CourseListItem extends StatelessWidget {
   final String level;
   final IconData actionIcon;
   final VoidCallback? onTap;
+  final CourseCardStatus status; 
 
   const CourseListItem({
     super.key,
@@ -18,19 +21,25 @@ class CourseListItem extends StatelessWidget {
     required this.level,
     this.actionIcon = Icons.chevron_right,
     this.onTap,
+    this.status = CourseCardStatus.normal, 
   });
 
   @override
   Widget build(BuildContext context) {
-    const borderColor = Color(0xFFE6E6E6);
     const textGrey = Color(0xFF8A8A8A);
+
+    final bool isActive = status == CourseCardStatus.active;
+
+    final Color borderColor = isActive ? const Color(0xFF2F6BFF) : const Color(0xFFE6E6E6);
+    final Color actionBgColor = isActive ? const Color(0xFF2F6BFF) : const Color(0xFFF2F3F5);
+    final Color actionIconColor = isActive ? Colors.white : Colors.black87;
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: borderColor, width: 1.2),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,6 +61,8 @@ class CourseListItem extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   topic,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -102,10 +113,14 @@ class CourseListItem extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF2F3F5),
+                    color: actionBgColor, 
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(actionIcon, size: 22, color: Colors.black87),
+                  child: Icon(
+                    actionIcon,
+                    size: 22,
+                    color: actionIconColor, 
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
