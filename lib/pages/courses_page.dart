@@ -23,7 +23,7 @@ class _CoursesPageState extends State<CoursesPage> {
       title: "In Court",
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "A1 - A2",
-      isActive: false,
+      status: CourseCardStatus.normal,
     ),
     _CourseData(
       imagePath: "assets/imgs/business.png",
@@ -31,8 +31,7 @@ class _CoursesPageState extends State<CoursesPage> {
       title: "Sport",
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "A1 - A2",
-      actionIcon: Icons.play_arrow_rounded,
-      isActive: false,
+      status: CourseCardStatus.normal,
     ),
     _CourseData(
       imagePath: "assets/imgs/film.png",
@@ -40,7 +39,7 @@ class _CoursesPageState extends State<CoursesPage> {
       title: "Weather",
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "A1 - A2",
-      isActive: false,
+      status: CourseCardStatus.normal,
     ),
     _CourseData(
       imagePath: "assets/imgs/cafe.png",
@@ -48,7 +47,7 @@ class _CoursesPageState extends State<CoursesPage> {
       title: "Cafe shop",
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "A1 - A2",
-      isActive: true,
+      status: CourseCardStatus.activePrimary,
     ),
     _CourseData(
       imagePath: "assets/imgs/hangout.png",
@@ -56,7 +55,7 @@ class _CoursesPageState extends State<CoursesPage> {
       title: "Shopping mall",
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "B1 - B2",
-      isActive: false,
+      status: CourseCardStatus.normal,
     ),
     _CourseData(
       imagePath: "assets/imgs/music.png",
@@ -64,7 +63,7 @@ class _CoursesPageState extends State<CoursesPage> {
       title: "Relaxing",
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "C1 - C2",
-      isActive: false,
+      status: CourseCardStatus.activeSecondary,
     ),
   ];
 
@@ -153,9 +152,7 @@ class _CoursesPageState extends State<CoursesPage> {
                     level: c.level,
                     actionIcon: c.actionIcon,
                     onTap: () {},
-                    status: c.isActive
-                        ? CourseCardStatus.active
-                        : CourseCardStatus.normal,
+                    status: c.status,
                   );
                 },
               ),
@@ -272,7 +269,7 @@ class _CourseData {
   final String description;
   final String level;
   final IconData actionIcon;
-  final bool isActive;
+  final CourseCardStatus status;
 
   const _CourseData({
     required this.imagePath,
@@ -281,6 +278,6 @@ class _CourseData {
     required this.description,
     required this.level,
     this.actionIcon = Icons.chevron_right,
-    this.isActive = false,
+    this.status = CourseCardStatus.normal,
   });
 }
