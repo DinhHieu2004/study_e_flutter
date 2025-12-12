@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/courses_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/search_page.dart';
 import 'pages/home_page.dart';
-import 'pages/vocabulary_page.dart';
 import 'pages/exercise_page.dart';
 import 'pages/profile_page.dart';
 
@@ -38,18 +38,27 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
-    HomePage(),
-    VocabularyPage(),
-    SearchPage(),
-    ExercisePage(),
-    ProfilePage(),
-  ];
+  Widget _buildPage(int index) {
+    switch (index) {
+      case 0:
+        return const HomePage();
+      case 1:
+        return CoursesPage(onClose: () => setState(() => _currentIndex = 0));
+      case 2:
+        return const SearchPage();
+      case 3:
+        return const ExercisePage();
+      case 4:
+        return const ProfilePage();
+      default:
+        return const HomePage();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: _buildPage(_currentIndex),
 
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
