@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/courses/course_list_item.dart';
+import '../pages/lesson_list_page.dart';
 
 class CoursesPage extends StatefulWidget {
   final VoidCallback? onClose;
@@ -24,6 +25,7 @@ class _CoursesPageState extends State<CoursesPage> {
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "A1 - A2",
       status: CourseCardStatus.normal,
+      lessonCount: 4,
     ),
     _CourseData(
       imagePath: "assets/imgs/business.png",
@@ -32,6 +34,7 @@ class _CoursesPageState extends State<CoursesPage> {
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "A1 - A2",
       status: CourseCardStatus.normal,
+      lessonCount: 5,
     ),
     _CourseData(
       imagePath: "assets/imgs/film.png",
@@ -40,6 +43,7 @@ class _CoursesPageState extends State<CoursesPage> {
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "A1 - A2",
       status: CourseCardStatus.normal,
+      lessonCount: 4,
     ),
     _CourseData(
       imagePath: "assets/imgs/cafe.png",
@@ -48,6 +52,7 @@ class _CoursesPageState extends State<CoursesPage> {
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "A1 - A2",
       status: CourseCardStatus.activePrimary,
+      lessonCount: 3,
     ),
     _CourseData(
       imagePath: "assets/imgs/hangout.png",
@@ -56,6 +61,7 @@ class _CoursesPageState extends State<CoursesPage> {
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "B1 - B2",
       status: CourseCardStatus.normal,
+      lessonCount: 5,
     ),
     _CourseData(
       imagePath: "assets/imgs/music.png",
@@ -64,6 +70,7 @@ class _CoursesPageState extends State<CoursesPage> {
       description: "Lorem Ipsum is simply dummy text of the prin...",
       level: "C1 - C2",
       status: CourseCardStatus.activeSecondary,
+      lessonCount: 4,
     ),
   ];
 
@@ -150,9 +157,20 @@ class _CoursesPageState extends State<CoursesPage> {
                     title: c.title,
                     description: c.description,
                     level: c.level,
-                    actionIcon: c.actionIcon,
-                    onTap: () {},
                     status: c.status,
+                    actionIcon: c.actionIcon,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => LessonListPage(
+                            courseTitle: c.title,
+                            courseSubtitle:
+                                "${c.level} • ${c.lessonCount} lessons",
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -270,6 +288,7 @@ class _CourseData {
   final String level;
   final IconData actionIcon;
   final CourseCardStatus status;
+  final int lessonCount;
 
   const _CourseData({
     required this.imagePath,
@@ -277,6 +296,7 @@ class _CourseData {
     required this.title,
     required this.description,
     required this.level,
+    required this.lessonCount,
     this.actionIcon = Icons.chevron_right,
     this.status = CourseCardStatus.normal,
   });

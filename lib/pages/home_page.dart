@@ -3,6 +3,7 @@ import 'package:flutter_application_1/widgets/lessons/lesson_card.dart';
 import 'package:flutter_application_1/widgets/videos/video_card.dart';
 import '../widgets/study_progress_circle.dart';
 import '../widgets/courses/course_card.dart';
+import '../pages/lesson_list_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -21,7 +22,7 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(),
+              _buildHeader(context),
               const SizedBox(height: 24),
               _buildStudyCard(),
               const SizedBox(height: 16),
@@ -39,21 +40,40 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Column(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               "Hi, Maya 👋",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 4),
-            Text(
-              "Let’s start learning!",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            const SizedBox(height: 4),
+
+            InkWell(
+              borderRadius: BorderRadius.circular(6),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const LessonListPage(
+                      courseTitle: "English for Beginner",
+                      courseSubtitle: "A1 • 12 lessons",
+                    ),
+                  ),
+                );
+              },
+              child: const Text(
+                "Let’s start learning!",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2F6BFF), 
+                ),
+              ),
             ),
           ],
         ),
@@ -319,58 +339,51 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildRecommendedLessonSection() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
-          Text(
-            "Recommended lesson",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          Row(
-            children: [
-              Text(
-                "See all",
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(width: 4),
-              Icon(Icons.arrow_forward, size: 14),
-            ],
-          ),
-        ],
-      ),
-
-      const SizedBox(height: 12),
-
-      SizedBox(
-        height: 160,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: const [
-            LessonCard(
-              title: "How to Conversation\nwith your Friends",
-              subtitle: "Cafe vocabulary",
-              imagePath: "assets/imgs/cafe.png", 
+            Text(
+              "Recommended lesson",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
-            SizedBox(width: 12),
-            LessonCard(
-              title: "Business small talk",
-              subtitle: "Office conversation",
-              imagePath: "assets/imgs/office.png",
+            Row(
+              children: [
+                Text(
+                  "See all",
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                SizedBox(width: 4),
+                Icon(Icons.arrow_forward, size: 14),
+              ],
             ),
           ],
         ),
-      ),
-    ],
-  );
-}
 
+        const SizedBox(height: 12),
+
+        SizedBox(
+          height: 160,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: const [
+              LessonCard(
+                title: "How to Conversation\nwith your Friends",
+                subtitle: "Cafe vocabulary",
+                imagePath: "assets/imgs/cafe.png",
+              ),
+              SizedBox(width: 12),
+              LessonCard(
+                title: "Business small talk",
+                subtitle: "Office conversation",
+                imagePath: "assets/imgs/office.png",
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
