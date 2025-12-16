@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../widgets/courses/course_list_item.dart';
-import '../pages/lesson_list_page.dart';
+import 'package:flutter_application_1/pages/lesson_list_page.dart';
+import 'package:flutter_application_1/widgets/courses/course_list_item.dart';
+import '../widgets/courses/course_list_view.dart';
+import '../widgets/courses/courses_filter_chips.dart';
+import '../widgets/courses/courses_search_bar.dart';
+import '../widgets/courses/courses_top_bar.dart';
 
 class CoursesPage extends StatefulWidget {
   final VoidCallback? onClose;
@@ -12,170 +16,155 @@ class CoursesPage extends StatefulWidget {
 }
 
 class _CoursesPageState extends State<CoursesPage> {
-  final TextEditingController _searchController = TextEditingController();
-
-  String _query = "";
+  final _searchCtl = TextEditingController();
   int _selectedChip = 0;
 
-  final List<_CourseData> _allCourses = const [
-    _CourseData(
-      imagePath: "assets/imgs/lifestyle.png",
-      topic: "Business",
-      title: "In Court",
-      description: "Lorem Ipsum is simply dummy text of the prin...",
-      level: "A1 - A2",
-      status: CourseCardStatus.normal,
-      lessonCount: 4,
-    ),
-    _CourseData(
-      imagePath: "assets/imgs/business.png",
-      topic: "Lifestyle",
-      title: "Sport",
-      description: "Lorem Ipsum is simply dummy text of the prin...",
-      level: "A1 - A2",
-      status: CourseCardStatus.normal,
-      lessonCount: 5,
-    ),
-    _CourseData(
-      imagePath: "assets/imgs/film.png",
-      topic: "Lifestyle",
-      title: "Weather",
-      description: "Lorem Ipsum is simply dummy text of the prin...",
-      level: "A1 - A2",
-      status: CourseCardStatus.normal,
-      lessonCount: 4,
-    ),
-    _CourseData(
-      imagePath: "assets/imgs/cafe.png",
-      topic: "Cafe",
-      title: "Cafe shop",
-      description: "Lorem Ipsum is simply dummy text of the prin...",
-      level: "A1 - A2",
-      status: CourseCardStatus.activePrimary,
-      lessonCount: 3,
-    ),
-    _CourseData(
-      imagePath: "assets/imgs/hangout.png",
-      topic: "Hangout",
-      title: "Shopping mall",
-      description: "Lorem Ipsum is simply dummy text of the prin...",
-      level: "B1 - B2",
-      status: CourseCardStatus.normal,
-      lessonCount: 5,
-    ),
-    _CourseData(
-      imagePath: "assets/imgs/music.png",
-      topic: "Music",
-      title: "Relaxing",
-      description: "Lorem Ipsum is simply dummy text of the prin...",
-      level: "C1 - C2",
-      status: CourseCardStatus.activeSecondary,
-      lessonCount: 4,
-    ),
-  ];
+  final List<String> _chips = const ["All", "Beginner", "Intermediate", "Advanced"];
 
-  final List<String> _chips = const [
-    "All",
-    "Business",
-    "Lifestyle",
-    "Lesson 0",
-    "A1-A2",
+  late final List<CourseVm> _allCourses = [
+    const CourseVm(
+      imagePath: "assets/imgs/business.png",
+      topic: "Business",
+      title: "Economics Conversation",
+      description: "Common phrases business major",
+      level: "A1",
+      lessonCount: 6,
+      status: CourseCardStatus.normal,
+      actionIcon: Icons.chevron_right,
+    ),
+    const CourseVm(
+      imagePath: "assets/imgs/cafe.png",
+      topic: "Travel & Coffee",
+      title: "At the Cafe",
+      description: "Order & small talk when hangout travel with friend",
+      level: "A1",
+      lessonCount: 5,
+      status: CourseCardStatus.normal,
+      actionIcon: Icons.chevron_right,
+    ),
+    const CourseVm(
+      imagePath: "assets/imgs/film.png",
+      topic: "Working",
+      title: "Office English",
+      description: "Emails & meetings with colleagues in your company",
+      level: "A2",
+      lessonCount: 4,
+      status: CourseCardStatus.normal,
+      actionIcon: Icons.chevron_right,
+    ),
+    const CourseVm(
+      imagePath: "assets/imgs/friend.png",
+      topic: "Working",
+      title: "Office English",
+      description: "Emails & meetings with colleagues in your company",
+      level: "A2",
+      lessonCount: 4,
+      status: CourseCardStatus.activePrimary,
+      actionIcon: Icons.chevron_right,
+    ),
+    const CourseVm(
+      imagePath: "assets/imgs/friend.png",
+      topic: "Working",
+      title: "Office English",
+      description: "Emails & meetings with colleagues in your company",
+      level: "A2",
+      lessonCount: 4,
+      status: CourseCardStatus.normal,
+      actionIcon: Icons.chevron_right,
+    ),
+    const CourseVm(
+      imagePath: "assets/imgs/film.png",
+      topic: "Working",
+      title: "Office English",
+      description: "Emails & meetings with colleagues in your company",
+      level: "A2",
+      lessonCount: 4,
+      status: CourseCardStatus.activeSecondary,
+      actionIcon: Icons.chevron_right,
+    ),
   ];
 
   @override
   void dispose() {
-    _searchController.dispose();
+    _searchCtl.dispose();
     super.dispose();
   }
 
-  List<_CourseData> get _filteredCourses {
-    final q = _query.trim().toLowerCase();
+  List<CourseVm> _filterCourses() {
+    final q = _searchCtl.text.trim().toLowerCase();
 
-    return _allCourses.where((c) {
-      final chip = _chips[_selectedChip];
-      final bool passChip = switch (chip) {
-        "All" => true,
-        "A1-A2" => c.level.toLowerCase().contains("a1"),
-        _ => c.topic.toLowerCase() == chip.toLowerCase(),
-      };
+    bool matchChip(CourseVm c) {
+      if (_selectedChip == 0) return true; // All
+      final label = _chips[_selectedChip].toLowerCase();
+      if (label == "beginner") return c.level.toLowerCase().startsWith("a");
+      if (label == "intermediate") return c.level.toLowerCase().startsWith("b");
+      if (label == "advanced") return c.level.toLowerCase().startsWith("c");
+      return true;
+    }
 
-      final bool passQuery = q.isEmpty
-          ? true
-          : c.title.toLowerCase().contains(q);
+    bool matchQuery(CourseVm c) {
+      if (q.isEmpty) return true;
+      return c.title.toLowerCase().contains(q) ||
+          c.topic.toLowerCase().contains(q) ||
+          c.description.toLowerCase().contains(q) ||
+          c.level.toLowerCase().contains(q);
+    }
 
-      return passChip && passQuery;
-    }).toList();
+    return _allCourses.where((c) => matchChip(c) && matchQuery(c)).toList();
+  }
+
+  void _openCourse(CourseVm c) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LessonListPage(
+          courseTitle: c.title,
+          courseLevel: c.level,
+          courseImageAsset: c.imagePath,
+          totalLessons: c.lessonCount,
+          doneLessons: 0,
+          estMinutes: c.lessonCount * 7, 
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final courses = _filteredCourses;
+    final courses = _filterCourses();
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
-            _buildTopBar(),
+            CoursesTopBar(onClose: widget.onClose, title: "Courses"),
             const SizedBox(height: 8),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _buildSearchBar(),
+              child: CoursesSearchBar(
+                controller: _searchCtl,
+                onChanged: (_) => setState(() {}),
+                onClear: () {
+                  _searchCtl.clear();
+                  setState(() {});
+                },
+              ),
             ),
             const SizedBox(height: 10),
 
-            SizedBox(
-              height: 38,
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                scrollDirection: Axis.horizontal,
-                itemCount: _chips.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final selected = index == _selectedChip;
-                  return _FilterChip(
-                    label: _chips[index],
-                    selected: selected,
-                    onTap: () => setState(() => _selectedChip = index),
-                  );
-                },
-              ),
+            CoursesFilterChips(
+              chips: _chips,
+              selectedIndex: _selectedChip,
+              onSelected: (i) => setState(() => _selectedChip = i),
             ),
             const SizedBox(height: 12),
 
             Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: courses.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 14),
-                itemBuilder: (context, i) {
-                  final c = courses[i];
-                  return CourseListItem(
-                    imagePath: c.imagePath,
-                    topic: c.topic,
-                    title: c.title,
-                    description: c.description,
-                    level: c.level,
-                    status: c.status,
-                    actionIcon: c.actionIcon,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const LessonListPage(
-                            courseTitle: "In Court",
-                            courseLevel: "A1-A2",
-                            courseImageAsset: "assets/imgs/lifestyle.png",
-                            totalLessons: 6,
-                            doneLessons: 4,
-                            estMinutes: 120,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
+              child: CourseListView(
+                courses: courses,
+                onCourseTap: _openCourse,
               ),
             ),
           ],
@@ -183,124 +172,4 @@ class _CoursesPageState extends State<CoursesPage> {
       ),
     );
   }
-
-  Widget _buildTopBar() {
-    return Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: widget.onClose,
-            child: const SizedBox(
-              width: 40,
-              height: 40,
-              child: Icon(Icons.arrow_back, size: 22),
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Text(
-            "Courses",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.search, color: Colors.black54),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextField(
-              controller: _searchController,
-              onChanged: (v) => setState(() => _query = v),
-              decoration: const InputDecoration(
-                hintText: "Search course name...",
-                border: InputBorder.none,
-                isDense: true,
-              ),
-            ),
-          ),
-          if (_query.isNotEmpty)
-            InkWell(
-              onTap: () {
-                _searchController.clear();
-                setState(() => _query = "");
-              },
-              child: const Icon(Icons.close, size: 18, color: Colors.black54),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected ? Colors.black : const Color(0xFFF3F4F6),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : Colors.black87,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CourseData {
-  final String imagePath;
-  final String topic;
-  final String title;
-  final String description;
-  final String level;
-  final IconData actionIcon;
-  final CourseCardStatus status;
-  final int lessonCount;
-
-  const _CourseData({
-    required this.imagePath,
-    required this.topic,
-    required this.title,
-    required this.description,
-    required this.level,
-    required this.lessonCount,
-    this.actionIcon = Icons.chevron_right,
-    this.status = CourseCardStatus.normal,
-  });
 }
