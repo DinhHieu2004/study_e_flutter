@@ -163,10 +163,13 @@ class _CoursesPageState extends State<CoursesPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => LessonListPage(
-                            courseTitle: c.title,
-                            courseSubtitle:
-                                "${c.level} • ${c.lessonCount} lessons",
+                          builder: (_) => const LessonListPage(
+                            courseTitle: "In Court",
+                            courseLevel: "A1-A2",
+                            courseImageAsset: "assets/imgs/lifestyle.png",
+                            totalLessons: 6,
+                            doneLessons: 4,
+                            estMinutes: 120,
                           ),
                         ),
                       );

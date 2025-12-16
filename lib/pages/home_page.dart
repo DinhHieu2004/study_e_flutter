@@ -24,7 +24,7 @@ class HomePage extends StatelessWidget {
             children: [
               _buildHeader(context),
               const SizedBox(height: 24),
-              _buildStudyCard(),
+              _buildStudyCard(context),
               const SizedBox(height: 16),
               _buildPromoBanner(),
               const SizedBox(height: 24),
@@ -48,32 +48,14 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Hi, Maya 👋",
+              "Hi, Maya",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
 
-            InkWell(
-              borderRadius: BorderRadius.circular(6),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const LessonListPage(
-                      courseTitle: "English for Beginner",
-                      courseSubtitle: "A1 • 12 lessons",
-                    ),
-                  ),
-                );
-              },
-              child: const Text(
-                "Let’s start learning!",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2F6BFF), 
-                ),
-              ),
+            const Text(
+              "Let’s start learning!",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -94,7 +76,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildStudyCard() {
+  Widget _buildStudyCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -135,7 +117,21 @@ class HomePage extends StatelessWidget {
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const LessonListPage(
+                            courseTitle: "English for Beginner",
+                            courseLevel: "A1-A2",
+                            courseImageAsset: "assets/imgs/music.png",
+                            totalLessons: 12,
+                            doneLessons: 0,
+                            estMinutes: 90,
+                          ),
+                        ),
+                      );
+                    },
                     child: const Text(
                       "Let's start",
                       style: TextStyle(fontWeight: FontWeight.w600),
