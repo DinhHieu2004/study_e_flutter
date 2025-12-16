@@ -1,0 +1,1 @@
+enum LessonStatus { locked, available, done }
