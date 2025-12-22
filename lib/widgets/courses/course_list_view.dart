@@ -1,29 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/widgets/courses/course_list_item.dart';
+import 'course_list_item.dart';
 import 'course_empty_state.dart';
-
-class CourseVm {
-  final String imagePath;
-  final String topic;
-  final String title;
-  final String description;
-  final String level;
-  final int lessonCount;
-
-  final CourseCardStatus status;
-  final IconData actionIcon;
-
-  const CourseVm({
-    required this.imagePath,
-    required this.topic,
-    required this.title,
-    required this.description,
-    required this.level,
-    required this.lessonCount,
-    this.status = CourseCardStatus.normal,
-    this.actionIcon = Icons.chevron_right,
-  });
-}
+import '../../models/course_vm.dart';
 
 class CourseListView extends StatelessWidget {
   final List<CourseVm> courses;

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/lesson_provider.dart';
 import '../widgets/lessons/course_header.dart';
 import '../widgets/lessons/progress_line.dart';
 import '../widgets/lessons/lesson_row.dart';
 import '../widgets/lessons/lesson_status.dart';
+import 'exercise_page.dart';
 
-class LessonListPage extends StatelessWidget {
+class LessonListPage extends ConsumerWidget {
   final String courseTitle;
   final String courseLevel;
   final String courseImageAsset;
@@ -23,51 +26,10 @@ class LessonListPage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final lessons = <_LessonData>[
-      const _LessonData(
-        id: "l1",
-        title: "Greetings",
-        minutes: 6,
-        thumbAsset: "assets/imgs/business.png",
-        status: LessonStatus.done,
-      ),
-      const _LessonData(
-        id: "l2",
-        title: "Say hello",
-        minutes: 6,
-        thumbAsset: "assets/imgs/cafe.png",
-        status: LessonStatus.done,
-      ),
-      const _LessonData(
-        id: "l3",
-        title: "Introduce",
-        minutes: 6,
-        thumbAsset: "assets/imgs/film.png",
-        status: LessonStatus.done,
-      ),
-      const _LessonData(
-        id: "l4",
-        title: "Communicate",
-        minutes: 6,
-        thumbAsset: "assets/imgs/friend.png",
-        status: LessonStatus.done,
-      ),
-      const _LessonData(
-        id: "l5",
-        title: "Opening model",
-        minutes: 8,
-        thumbAsset: "assets/imgs/hangout.png",
-        status: LessonStatus.available,
-      ),
-      const _LessonData(
-        id: "l6",
-        title: "Numbers",
-        minutes: 7,
-        thumbAsset: "assets/imgs/office.png",
-        status: LessonStatus.locked,
-      ),
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lessons = ref.watch(lessonListProvider);
+    final autoDone = lessons.where((l) => l.status == LessonStatus.done).length;
+    final done = doneLessons == 0 ? autoDone : doneLessons;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -80,21 +42,19 @@ class LessonListPage extends StatelessWidget {
               level: courseLevel,
               imageAsset: courseImageAsset,
               totalLessons: totalLessons,
-              doneLessons: doneLessons,
+              doneLessons: done,
               estMinutes: estMinutes,
               onBack: () => Navigator.pop(context),
             ),
-
             const SizedBox(height: 14),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: LessonProgressLine(
-                doneLessons: doneLessons,
+                doneLessons: done,
                 totalLessons: totalLessons,
               ),
             ),
-
             const SizedBox(height: 14),
 
             ListView.separated(
@@ -105,20 +65,22 @@ class LessonListPage extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, i) {
                 final l = lessons[i];
+                final locked = l.status == LessonStatus.locked;
 
                 return LessonRow(
                   thumbAsset: l.thumbAsset,
                   title: l.title,
                   subtitle: "${l.minutes} min",
                   status: l.status,
-                  onTap: l.status == LessonStatus.locked
+                  onTap: locked
                       ? null
                       : () {
-                          debugPrint("Open lesson: ${l.id}");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const ExercisePage()),
+                          );
                         },
-                  onMore: () {
-                    debugPrint("More: ${l.id}");
-                  },
+                  onMore: () => debugPrint("More: ${l.id}"),
                 );
               },
             ),
@@ -127,20 +89,4 @@ class LessonListPage extends StatelessWidget {
       ),
     );
   }
-}
-
-class _LessonData {
-  final String id;
-  final String title;
-  final int minutes;
-  final String thumbAsset;
-  final LessonStatus status;
-
-  const _LessonData({
-    required this.id,
-    required this.title,
-    required this.minutes,
-    required this.thumbAsset,
-    required this.status,
-  });
 }

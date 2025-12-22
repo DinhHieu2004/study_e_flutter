@@ -1,88 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/lesson_list_page.dart';
-import 'package:flutter_application_1/widgets/courses/course_list_item.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/course_provider.dart';
+import 'lesson_list_page.dart';
 import '../widgets/courses/course_list_view.dart';
 import '../widgets/courses/courses_filter_chips.dart';
 import '../widgets/courses/courses_search_bar.dart';
 import '../widgets/courses/courses_top_bar.dart';
+import '../models/course_vm.dart';
 
-class CoursesPage extends StatefulWidget {
+class CoursesPage extends ConsumerStatefulWidget {
   final VoidCallback? onClose;
 
   const CoursesPage({super.key, this.onClose});
 
   @override
-  State<CoursesPage> createState() => _CoursesPageState();
+  ConsumerState<CoursesPage> createState() => _CoursesPageState();
 }
 
-class _CoursesPageState extends State<CoursesPage> {
+class _CoursesPageState extends ConsumerState<CoursesPage> {
   final _searchCtl = TextEditingController();
   int _selectedChip = 0;
 
   final List<String> _chips = const ["All", "Beginner", "Intermediate", "Advanced"];
-
-  late final List<CourseVm> _allCourses = [
-    const CourseVm(
-      imagePath: "assets/imgs/business.png",
-      topic: "Business",
-      title: "Economics Conversation",
-      description: "Common phrases business major",
-      level: "A1",
-      lessonCount: 6,
-      status: CourseCardStatus.normal,
-      actionIcon: Icons.chevron_right,
-    ),
-    const CourseVm(
-      imagePath: "assets/imgs/cafe.png",
-      topic: "Travel & Coffee",
-      title: "At the Cafe",
-      description: "Order & small talk when hangout travel with friend",
-      level: "A1",
-      lessonCount: 5,
-      status: CourseCardStatus.normal,
-      actionIcon: Icons.chevron_right,
-    ),
-    const CourseVm(
-      imagePath: "assets/imgs/film.png",
-      topic: "Working",
-      title: "Office English",
-      description: "Emails & meetings with colleagues in your company",
-      level: "A2",
-      lessonCount: 4,
-      status: CourseCardStatus.normal,
-      actionIcon: Icons.chevron_right,
-    ),
-    const CourseVm(
-      imagePath: "assets/imgs/friend.png",
-      topic: "Working",
-      title: "Office English",
-      description: "Emails & meetings with colleagues in your company",
-      level: "A2",
-      lessonCount: 4,
-      status: CourseCardStatus.activePrimary,
-      actionIcon: Icons.chevron_right,
-    ),
-    const CourseVm(
-      imagePath: "assets/imgs/friend.png",
-      topic: "Working",
-      title: "Office English",
-      description: "Emails & meetings with colleagues in your company",
-      level: "A2",
-      lessonCount: 4,
-      status: CourseCardStatus.normal,
-      actionIcon: Icons.chevron_right,
-    ),
-    const CourseVm(
-      imagePath: "assets/imgs/film.png",
-      topic: "Working",
-      title: "Office English",
-      description: "Emails & meetings with colleagues in your company",
-      level: "A2",
-      lessonCount: 4,
-      status: CourseCardStatus.activeSecondary,
-      actionIcon: Icons.chevron_right,
-    ),
-  ];
 
   @override
   void dispose() {
@@ -90,7 +29,7 @@ class _CoursesPageState extends State<CoursesPage> {
     super.dispose();
   }
 
-  List<CourseVm> _filterCourses() {
+  List<CourseVm> _filterCourses(List<CourseVm> all) {
     final q = _searchCtl.text.trim().toLowerCase();
 
     bool matchChip(CourseVm c) {
@@ -110,7 +49,7 @@ class _CoursesPageState extends State<CoursesPage> {
           c.level.toLowerCase().contains(q);
     }
 
-    return _allCourses.where((c) => matchChip(c) && matchQuery(c)).toList();
+    return all.where((c) => matchChip(c) && matchQuery(c)).toList();
   }
 
   void _openCourse(CourseVm c) {
@@ -123,7 +62,7 @@ class _CoursesPageState extends State<CoursesPage> {
           courseImageAsset: c.imagePath,
           totalLessons: c.lessonCount,
           doneLessons: 0,
-          estMinutes: c.lessonCount * 7, 
+          estMinutes: c.lessonCount * 7,
         ),
       ),
     );
@@ -131,7 +70,8 @@ class _CoursesPageState extends State<CoursesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final courses = _filterCourses();
+    final allCourses = ref.watch(courseListProvider);
+    final courses = _filterCourses(allCourses);
 
     return Scaffold(
       backgroundColor: Colors.white,
