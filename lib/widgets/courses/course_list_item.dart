@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
-enum CourseCardStatus { normal, activePrimary, activeSecondary }
+enum CourseCardStatus {
+  normal,
+  activePrimary,
+  activeSecondary,
+}
 
 class CourseListItem extends StatelessWidget {
   final String imagePath;
