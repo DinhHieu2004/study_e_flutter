@@ -67,7 +67,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
   @override
   Widget build(BuildContext context) {
-    final quizState = ref.watch(quizProvider); // dùng nếu muốn hiển thị loading trong tương lai
+    final quizState = ref.watch(quizProvider); 
 
     return FadeTransition(
       opacity: _fade,
@@ -84,7 +84,6 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
             ),
             const SizedBox(height: 20),
 
-            // Amount input
             Text("Số câu hỏi", style: TextStyle(color: Colors.grey.shade700)),
             const SizedBox(height: 6),
 
@@ -105,7 +104,6 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
             const SizedBox(height: 20),
 
-            // Difficulty
             Text("Độ khó", style: TextStyle(color: Colors.grey.shade700)),
             const SizedBox(height: 6),
 
@@ -120,7 +118,6 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
             const SizedBox(height: 20),
 
-            // Type
             Text("Loại câu hỏi", style: TextStyle(color: Colors.grey.shade700)),
             const SizedBox(height: 6),
 

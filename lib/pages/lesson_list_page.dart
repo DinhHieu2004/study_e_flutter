@@ -5,7 +5,8 @@ import '../widgets/lessons/course_header.dart';
 import '../widgets/lessons/progress_line.dart';
 import '../widgets/lessons/lesson_row.dart';
 import '../widgets/lessons/lesson_status.dart';
-import 'exercise_page.dart';
+import '../providers/lesson_detail_provider.dart';
+import 'lesson_detail_page.dart';
 
 class LessonListPage extends ConsumerWidget {
   final String courseTitle;
@@ -72,14 +73,25 @@ class LessonListPage extends ConsumerWidget {
                   title: l.title,
                   subtitle: "${l.minutes} min",
                   status: l.status,
-                  onTap: locked
+                  onTap: l.status == LessonStatus.locked
                       ? null
                       : () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const ExercisePage()),
+                            MaterialPageRoute(
+                              builder: (_) => LessonDetailPage(
+                                lessonId: l.id,
+                                title: l.title,
+                                imageAsset: l.thumbAsset,
+                                topic:
+                                    "Daily Life",
+                                level: "Beginner",
+                                estMinutes: l.minutes,
+                              ),
+                            ),
                           );
                         },
+
                   onMore: () => debugPrint("More: ${l.id}"),
                 );
               },
