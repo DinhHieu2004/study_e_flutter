@@ -5,6 +5,7 @@ import 'pages/home_page.dart';
 import 'pages/search_page.dart';
 import 'pages/exercise_page.dart';
 import 'pages/profile_page.dart';
+import '../../widgets/auth/auth_gate.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0066FF)),
         useMaterial3: false,
       ),
-      home: const MainLayout(),
+      home: AuthGate(),
     );
   }
 }
