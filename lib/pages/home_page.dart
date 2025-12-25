@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/widgets/lessons/lesson_card.dart';
-import 'package:flutter_application_1/widgets/videos/video_card.dart';
+import '../utils/app_colors.dart';
+import '../widgets/lessons/lesson_card.dart';
+import '../widgets/videos/video_card.dart';
 import '../widgets/study_progress_circle.dart';
 import '../widgets/courses/course_card.dart';
-import '../pages/lesson_list_page.dart';
+import 'lesson_list_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  static const Color primaryBlue = Color(0xFF0066FF);
-  static const Color bgColor = Color(0xFFF7F8FC);
-  static const Color accentOrange = Color(0xFFFFA726);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: AppColors.bgColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -63,7 +60,7 @@ class HomePage extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: primaryBlue,
+            color: AppColors.primaryBlue,
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(
@@ -111,7 +108,7 @@ class HomePage extends StatelessWidget {
                   height: 40,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryBlue,
+                      backgroundColor: AppColors.primaryBlue,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -166,7 +163,7 @@ class HomePage extends StatelessWidget {
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: accentOrange,
+        color: AppColors.accentOrange,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -220,7 +217,7 @@ class HomePage extends StatelessWidget {
             child: const Text(
               "View",
               style: TextStyle(
-                color: accentOrange,
+                color: AppColors.accentOrange,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),

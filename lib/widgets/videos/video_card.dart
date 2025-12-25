@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/home_page.dart';
+import '../../utils/app_colors.dart';
 
 class VideoCard extends StatelessWidget {
   final String name;
@@ -93,7 +93,7 @@ class VideoCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 TextButton(
                   style: TextButton.styleFrom(
-                    backgroundColor: HomePage.primaryBlue,
+                    backgroundColor: AppColors.primaryBlue,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
