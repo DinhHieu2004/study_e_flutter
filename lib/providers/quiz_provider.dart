@@ -1,19 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../models/quiz_question.dart';
+import '../repositories/quiz_repository.dart';
+import '../models/quiz_result_request.dart';
 
-class QuizQuestion {
-  final String question;
-  final String correctAnswer;
-  final List<String> options;
-
-  QuizQuestion({
-    required this.question,
-    required this.correctAnswer,
-    required this.options,
-  });
-}
-
+// Thêm phương pháp copyWith để cập nhật state dễ dàng hơn
 class QuizState {
   final bool loading;
   final List<QuizQuestion> questions;
@@ -24,49 +14,93 @@ class QuizState {
     this.questions = const [],
     this.error,
   });
+
+  // Hàm này cực kỳ quan trọng để Riverpod nhận biết thay đổi
+  QuizState copyWith({
+    bool? loading,
+    List<QuizQuestion>? questions,
+    String? error,
+  }) {
+    return QuizState(
+      loading: loading ?? this.loading,
+      questions: questions ?? this.questions,
+      error: error, // Nếu là null thì reset error
+    );
+  }
 }
 
 class QuizNotifier extends StateNotifier<QuizState> {
-  QuizNotifier() : super(QuizState());
+  final QuizRepository repository;
+
+  QuizNotifier(this.repository) : super(QuizState());
 
   Future<void> fetchQuestions({
     required int amount,
     required String difficulty,
     required String type,
+    required int categoryId,
   }) async {
-    state = QuizState(loading: true);
-
-    final url =
-        "https://opentdb.com/api.php?amount=$amount&difficulty=$difficulty&type=$type";
+    state = state.copyWith(loading: true, error: null);
 
     try {
-      final response = await http.get(Uri.parse(url));
+      final data = await repository.fetchQuestions(
+        amount: amount,
+        difficulty: difficulty,
+        type: type,
+        categoryId: categoryId,
+      );
+      state = state.copyWith(loading: false, questions: data);
+    } catch (e) {
+      state = state.copyWith(loading: false, error: e.toString());
+    }
+  }
 
-      final data = jsonDecode(response.body);
+  // SỬA LỖI CHÍNH TẠI ĐÂY: Logic chọn đáp án
+  void selectAnswer(int index, String answer) {
+    // 1. Tạo bản sao của danh sách
+    final List<QuizQuestion> updatedQuestions = List.from(state.questions);
+    
+    // 2. Cập nhật câu hỏi tại vị trí index bằng cách gán lại (nếu có hàm copyWith trong model thì tốt nhất)
+    updatedQuestions[index].userAnswer = answer;
 
-      List results = data["results"];
+    // 3. Gán lại state bằng một Instance mới hoàn toàn của QuizState
+    // Riverpod so sánh "Instance A != Instance B" để quyết định Rebuild UI
+    state = state.copyWith(questions: updatedQuestions);
+  }
 
-      final questions = results.map((e) {
-        List<String> options = [
-          ...List<String>.from(e["incorrect_answers"]),
-          e["correct_answer"]
-        ];
+  Future<void> submitQuiz(int duration) async {
+    try {
+      final score = state.questions
+          .where((q) => q.userAnswer == q.correctAnswer)
+          .length;
 
-        options.shuffle();
-
-        return QuizQuestion(
-          question: e["question"],
-          correctAnswer: e["correct_answer"],
-          options: options,
+      final answers = state.questions.map((q) {
+        return AnswerDetailRequest(
+          questionText: q.question,
+          options: q.answers,
+          correctAnswer: q.correctAnswer,
+          userAnswer: q.userAnswer ?? "",
+          category: q.category,
         );
       }).toList();
 
-      state = QuizState(loading: false, questions: questions);
+      final request = QuizResultRequest(
+        score: score,
+        total: state.questions.length,
+        duration: duration,
+        timestamp: DateTime.now(),
+        answers: answers,
+      );
+
+      await repository.saveQuizResult(request);
     } catch (e) {
-      state = QuizState(loading: false, error: e.toString());
+      state = state.copyWith(error: e.toString());
     }
   }
 }
 
-final quizProvider =
-    StateNotifierProvider<QuizNotifier, QuizState>((ref) => QuizNotifier());
+final quizRepositoryProvider = Provider((ref) => QuizRepository());
+
+final quizProvider = StateNotifierProvider<QuizNotifier, QuizState>((ref) {
+  return QuizNotifier(ref.read(quizRepositoryProvider));
+});
