@@ -300,7 +300,8 @@ class _CourseData {
     required this.description,
     required this.level,
     required this.lessonCount,
-    this.actionIcon = Icons.chevron_right,
+    this.actionIcon = Icons.arrow_forward,
+    
     this.status = CourseCardStatus.normal,
   });
 }

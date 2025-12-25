@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/quiz_provider.dart';
+import '../providers/category_provider.dart';
+import '../models/category.dart';
 import 'quiz_question_page.dart';
 
 class ExercisePage extends ConsumerStatefulWidget {
@@ -19,10 +21,11 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   final List<String> difficulties = ["easy", "medium", "hard"];
   final List<String> types = ["multiple", "boolean"];
 
-  String? selectedDifficulty = "easy";
-  String? selectedType = "multiple";
-  int amount = 10;
+  String selectedDifficulty = "easy";
+  String selectedType = "multiple";
+  Category? selectedCategory;
 
+  int amount = 10;
   bool isLoading = false;
 
   @override
@@ -45,29 +48,38 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   }
 
   void startQuiz() async {
-    final quizNotifier = ref.read(quizProvider.notifier);
+  final quizNotifier = ref.read(quizProvider.notifier);
 
-    setState(() => isLoading = true);
+  setState(() => isLoading = true);
 
-    await quizNotifier.fetchQuestions(
-      amount: amount,
-      difficulty: selectedDifficulty!,
-      type: selectedType!,
+  await quizNotifier.fetchQuestions(
+    amount: amount,
+    difficulty: selectedDifficulty,
+    type: selectedType,
+    categoryId: selectedCategory?.id ?? 0,
+  );
+
+  if (!mounted) return; 
+
+  setState(() => isLoading = false);
+
+  final quizState = ref.read(quizProvider);
+  if (quizState.error != null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Lỗi: ${quizState.error}")),
     );
-
-    setState(() => isLoading = false);
-
-    if (mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const QuizQuestionPage()),
-      );
-    }
+    return;
   }
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => const QuizQuestionPage()),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
-    final quizState = ref.watch(quizProvider); // dùng nếu muốn hiển thị loading trong tương lai
+    final categoriesAsync = ref.watch(categoryProvider);
 
     return FadeTransition(
       opacity: _fade,
@@ -77,29 +89,46 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
           children: [
             const Text(
               "Quiz Options",
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
 
-            // Amount input
+            // Amount
             Text("Số câu hỏi", style: TextStyle(color: Colors.grey.shade700)),
             const SizedBox(height: 6),
-
             TextField(
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey.shade100,
-                hintText: "VD: 10",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
               keyboardType: TextInputType.number,
-              onChanged: (value) {
-                amount = int.tryParse(value) ?? 10;
+              decoration: inputDecor(hint: "VD: 10"),
+              onChanged: (v) => amount = int.tryParse(v) ?? 10,
+            ),
+
+            const SizedBox(height: 20),
+
+            // Category (API)
+            Text("Danh mục", style: TextStyle(color: Colors.grey.shade700)),
+            const SizedBox(height: 6),
+
+            categoriesAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => const Text("Lỗi tải category"),
+              data: (categories) {
+                return DropdownButtonFormField<Category?>(
+                  initialValue: selectedCategory,
+                  decoration: inputDecor(),
+                  items: [
+                    const DropdownMenuItem<Category?>(
+                      value: null,
+                      child: Text("Trộn"),
+                    ),
+                    ...categories.map(
+                      (c) => DropdownMenuItem<Category?>(
+                        value: c,
+                        child: Text(c.name),
+                      ),
+                    ),
+                  ],
+                  onChanged: (v) => setState(() => selectedCategory = v),
+                );  
               },
             ),
 
@@ -108,14 +137,13 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
             // Difficulty
             Text("Độ khó", style: TextStyle(color: Colors.grey.shade700)),
             const SizedBox(height: 6),
-
             DropdownButtonFormField<String>(
-              value: selectedDifficulty,
+              initialValue: selectedDifficulty,
               decoration: inputDecor(),
-              items: difficulties.map((d) {
-                return DropdownMenuItem(value: d, child: Text(d));
-              }).toList(),
-              onChanged: (v) => setState(() => selectedDifficulty = v),
+              items: difficulties
+                  .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                  .toList(),
+              onChanged: (v) => setState(() => selectedDifficulty = v!),
             ),
 
             const SizedBox(height: 20),
@@ -123,14 +151,13 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
             // Type
             Text("Loại câu hỏi", style: TextStyle(color: Colors.grey.shade700)),
             const SizedBox(height: 6),
-
             DropdownButtonFormField<String>(
-              value: selectedType,
+              initialValue: selectedType,
               decoration: inputDecor(),
-              items: types.map((t) {
-                return DropdownMenuItem(value: t, child: Text(t));
-              }).toList(),
-              onChanged: (v) => setState(() => selectedType = v),
+              items: types
+                  .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                  .toList(),
+              onChanged: (v) => setState(() => selectedType = v!),
             ),
 
             const SizedBox(height: 30),
@@ -154,7 +181,8 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
                       )
                     : const Text(
                         "Start Quiz",
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                        style:
+                            TextStyle(fontSize: 18, color: Colors.white),
                       ),
               ),
             ),
@@ -164,8 +192,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
     );
   }
 
-  InputDecoration inputDecor() {
+  InputDecoration inputDecor({String? hint}) {
     return InputDecoration(
+      hintText: hint,
       filled: true,
       fillColor: Colors.grey.shade100,
       border: OutlineInputBorder(
