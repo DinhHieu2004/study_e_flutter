@@ -5,6 +5,7 @@ import '../providers/quiz_provider.dart';
 import '../providers/category_provider.dart';
 import '../models/category.dart';
 import 'quiz_question_page.dart';
+import 'pronunciation_page.dart';
 
 class ExercisePage extends ConsumerStatefulWidget {
   const ExercisePage({super.key});
@@ -17,6 +18,8 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fade;
+
+  bool _isPronunciationMode = false;
 
   final List<String> difficulties = ["easy", "medium", "hard"];
   final List<String> types = ["multiple", "boolean"];
@@ -31,12 +34,10 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
   }
@@ -48,141 +49,230 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   }
 
   void startQuiz() async {
-  final quizNotifier = ref.read(quizProvider.notifier);
+    final quizNotifier = ref.read(quizProvider.notifier);
+    setState(() => isLoading = true);
 
-  setState(() => isLoading = true);
-
-  await quizNotifier.fetchQuestions(
-    amount: amount,
-    difficulty: selectedDifficulty,
-    type: selectedType,
-    categoryId: selectedCategory?.id ?? 0,
-  );
-
-  if (!mounted) return; 
-
-  setState(() => isLoading = false);
-
-  final quizState = ref.read(quizProvider);
-  if (quizState.error != null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Lỗi: ${quizState.error}")),
+    await quizNotifier.fetchQuestions(
+      amount: amount,
+      difficulty: selectedDifficulty,
+      type: selectedType,
+      categoryId: selectedCategory?.id ?? 0,
     );
-    return;
-  }
 
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => const QuizQuestionPage()),
-  );
-}
+    if (!mounted) return;
+    setState(() => isLoading = false);
+
+    final quizState = ref.read(quizProvider);
+    if (quizState.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Lỗi: ${quizState.error}")),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const QuizQuestionPage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(categoryProvider);
 
-    return FadeTransition(
-      opacity: _fade,
-      child: Padding(
+    return Scaffold(
+      body: FadeTransition(
+        opacity: _fade,
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF5B9FED), Color(0xFF4A8FE7)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _isPronunciationMode ? "Pronunciation" : "Practice Quiz",
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _isPronunciationMode 
+                                ? "Improve your speaking skills" 
+                                : "Test your knowledge with customized quizzes",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () => setState(() => _isPronunciationMode = true),
+                            child: _headerIcon(Icons.voice_chat, isActive: _isPronunciationMode),
+                          ),
+                          const SizedBox(width: 12),
+                          GestureDetector(
+                            onTap: () => setState(() => _isPronunciationMode = false),
+                            child: _headerIcon(Icons.assignment, isActive: !_isPronunciationMode),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: _isPronunciationMode 
+                    ? const PronunciationPage() 
+                    : _buildQuizSettings(categoriesAsync),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuizSettings(AsyncValue<List<Category>> categoriesAsync) {
+    return SingleChildScrollView(
+      key: const ValueKey("QuizSettings"),
+      padding: const EdgeInsets.all(20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         padding: const EdgeInsets.all(20),
-        child: ListView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Quiz Options",
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+              "Quiz Settings",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1E3A5F),
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 4),
+            const Text(
+              "Customize your quiz experience",
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 24),
 
-            // Amount
-            Text("Số câu hỏi", style: TextStyle(color: Colors.grey.shade700)),
-            const SizedBox(height: 6),
+            _buildLabel("Number of Questions"),
+            const SizedBox(height: 8),
             TextField(
               keyboardType: TextInputType.number,
-              decoration: inputDecor(hint: "VD: 10"),
+              decoration: _inputDecoration(hint: "Enter number (1-50)"),
               onChanged: (v) => amount = int.tryParse(v) ?? 10,
             ),
 
             const SizedBox(height: 20),
 
-            // Category (API)
-            Text("Danh mục", style: TextStyle(color: Colors.grey.shade700)),
-            const SizedBox(height: 6),
-
+            _buildLabel("Category"),
+            const SizedBox(height: 8),
             categoriesAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => const Text("Lỗi tải category"),
-              data: (categories) {
-                return DropdownButtonFormField<Category?>(
-                  initialValue: selectedCategory,
-                  decoration: inputDecor(),
+              data: (categories) => Container(
+                decoration: _dropdownBoxDecoration(),
+                child: DropdownButtonFormField<Category?>(
+                  value: selectedCategory,
+                  decoration: _dropdownInputDecoration("Select category"),
+                  dropdownColor: Colors.white,
                   items: [
                     const DropdownMenuItem<Category?>(
                       value: null,
                       child: Text("Trộn"),
                     ),
-                    ...categories.map(
-                      (c) => DropdownMenuItem<Category?>(
-                        value: c,
-                        child: Text(c.name),
-                      ),
-                    ),
+                    ...categories.map((c) => DropdownMenuItem(value: c, child: Text(c.name))),
                   ],
                   onChanged: (v) => setState(() => selectedCategory = v),
-                );  
-              },
+                ),
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            // Difficulty
-            Text("Độ khó", style: TextStyle(color: Colors.grey.shade700)),
-            const SizedBox(height: 6),
-            DropdownButtonFormField<String>(
-              initialValue: selectedDifficulty,
-              decoration: inputDecor(),
-              items: difficulties
-                  .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                  .toList(),
-              onChanged: (v) => setState(() => selectedDifficulty = v!),
+            _buildLabel("Difficulty"),
+            const SizedBox(height: 8),
+            Container(
+              decoration: _dropdownBoxDecoration(),
+              child: DropdownButtonFormField<String>(
+                value: selectedDifficulty,
+                decoration: _dropdownInputDecoration("Select difficulty"),
+                items: difficulties.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                onChanged: (v) => setState(() => selectedDifficulty = v!),
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            // Type
-            Text("Loại câu hỏi", style: TextStyle(color: Colors.grey.shade700)),
-            const SizedBox(height: 6),
-            DropdownButtonFormField<String>(
-              initialValue: selectedType,
-              decoration: inputDecor(),
-              items: types
-                  .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                  .toList(),
-              onChanged: (v) => setState(() => selectedType = v!),
+            _buildLabel("Question Type"),
+            const SizedBox(height: 8),
+            Container(
+              decoration: _dropdownBoxDecoration(),
+              child: DropdownButtonFormField<String>(
+                value: selectedType,
+                decoration: _dropdownInputDecoration("Select question type"),
+                items: types.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+                onChanged: (v) => setState(() => selectedType = v!),
+              ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 32),
 
             SizedBox(
               width: double.infinity,
-              height: 48,
+              height: 56,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  backgroundColor: const Color(0xFF5B9FED),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: isLoading ? null : startQuiz,
                 child: isLoading
                     ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(color: Colors.white),
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                       )
                     : const Text(
                         "Start Quiz",
-                        style:
-                            TextStyle(fontSize: 18, color: Colors.white),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
               ),
             ),
@@ -192,14 +282,58 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
     );
   }
 
-  InputDecoration inputDecor({String? hint}) {
+
+  Widget _headerIcon(IconData icon, {bool isActive = false}) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: isActive ? Colors.white : Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(
+        icon,
+        color: isActive ? const Color(0xFF5B9FED) : Colors.white,
+        size: 20,
+      ),
+    );
+  }
+
+  Widget _buildLabel(String text) {
+    return Text(
+      text,
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F)),
+    );
+  }
+
+  BoxDecoration _dropdownBoxDecoration() {
+    return BoxDecoration(
+      color: Colors.grey.shade50,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.grey.shade300),
+    );
+  }
+
+  InputDecoration _dropdownInputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      border: InputBorder.none,
+    );
+  }
+
+  InputDecoration _inputDecoration({String? hint}) {
     return InputDecoration(
       hintText: hint,
       filled: true,
-      fillColor: Colors.grey.shade100,
-      border: OutlineInputBorder(
+      fillColor: Colors.grey.shade50,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF5B9FED), width: 2),
       ),
     );
   }
