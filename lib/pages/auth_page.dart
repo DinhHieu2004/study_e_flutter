@@ -1,21 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../widgets/auth/auth_tab.dart';
 import '../../widgets/auth/login_form.dart';
 import '../../widgets/auth/register_form.dart';
+import '../../providers/auth_provider.dart';
 
-class AuthPage extends StatefulWidget {
-  final VoidCallback onLogin;
-  const AuthPage({super.key, required this.onLogin});
+class AuthPage extends ConsumerStatefulWidget {
+  const AuthPage({super.key});
 
   @override
-  State<AuthPage> createState() => _AuthPageState();
+  ConsumerState<AuthPage> createState() => _AuthPageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
+class _AuthPageState extends ConsumerState<AuthPage> {
   bool isLogin = true;
+
+  final emailCtl = TextEditingController();
+  final passCtl = TextEditingController();
+
+  @override
+  void dispose() {
+    emailCtl.dispose();
+    passCtl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final auth = ref.watch(authProvider); // ✅ DÒNG QUAN TRỌNG
+
     final width = MediaQuery.of(context).size.width;
     final double contentWidth = width > 600 ? 420 : width;
 
@@ -31,8 +45,6 @@ class _AuthPageState extends State<AuthPage> {
               child: Column(
                 children: [
                   const SizedBox(height: 40),
-
-                  /// CARD
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -48,19 +60,29 @@ class _AuthPageState extends State<AuthPage> {
                     ),
                     child: Column(
                       children: [
-                        /// TAB
                         AuthTab(
                           isLogin: isLogin,
                           onChange: (value) {
                             setState(() => isLogin = value);
                           },
                         ),
-
                         const SizedBox(height: 20),
-
-                        /// FORM
                         isLogin
-                            ? LoginForm(onLogin: widget.onLogin)
+                            ? LoginForm(
+                                emailCtl: emailCtl,
+                                passwordCtl: passCtl,
+                                isLoading: auth.isLoading,
+                                error: auth.error,
+                                onLogin: () {
+                                  auth.login(
+                                    emailCtl.text.trim(),
+                                    passCtl.text.trim(),
+                                  );
+                                },
+                                onGoogleLogin: () {
+                                  auth.loginWithGoogle();
+                                },
+                              )
                             : const RegisterForm(),
                       ],
                     ),
