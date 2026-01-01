@@ -14,8 +14,7 @@ class DioClient {
     ..interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          const token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhNm16WVpGV3Z4ZGFrZUVJd1NiN0Z1WjhsWDQzIiwiZW1haWwiOiJoaWV1dGh1b25nMTEzQGdtYWlsLmNvbSIsIm5hbWUiOiJIaWV1IFRodW9uZyIsInVzZXJJZCI6NiwiaWF0IjoxNzY2NTU1MTU5LCJleHAiOjE3NjY2NTUwNTl9.PUmxnf_vyBzWM1xBbBXCIZYQ5fIZDLU15wLGjBgSXXVhwmevIyq-nzqPILDMVOU66j_nrTJpDtyaiftrUC9FMA';
-          const t = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhNm16WVpGV3Z4ZGFrZUVJd1NiN0Z1WjhsWDQzIiwiZW1haWwiOiJoaWV1dGh1b25nMTEzQGdtYWlsLmNvbSIsIm5hbWUiOiJIaWV1IFRodW9uZyIsInVzZXJJZCI6NiwiaWF0IjoxNzY2NTU1MTU5LCJleHAiOjE3NjY2NTUwNTl9.PUmxnf_vyBzWM1xBbBXCIZYQ5fIZDLU15wLGjBgSXXVhwmevIyq-nzqPILDMVOU66j_nrTJpDtyaiftrUC9FMA';
+          const token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhNm16WVpGV3Z4ZGFrZUVJd1NiN0Z1WjhsWDQzIiwiZW1haWwiOiJoaWV1dGh1b25nMTEzQGdtYWlsLmNvbSIsIm5hbWUiOiJIaWV1IFRodW9uZyIsInVzZXJJZCI6NiwiaWF0IjoxNzY2ODI5MzQxLCJleHAiOjE3NjY5MjkyNDF9.iQcM2rx7XbRWsszsw79MH4TRB0n2v77nNfAzuS6__DY9DSDs3W6swLs8daZ34s7aYY06uW74V7zVPmCm6M2w5g';
           options.headers['Authorization'] = 'Bearer $token';
 
           return handler.next(options);

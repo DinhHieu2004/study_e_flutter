@@ -34,6 +34,9 @@ dependencies:
   flutter_riverpod: ^2.5.1 
   riverpod_annotation: ^2.5.1
   dio: ^5.4.0
+  flutter_tts: ^4.2.2
+  speech_to_text: ^6.6.2
+  permission_handler: ^11.3.1
 
 
 
