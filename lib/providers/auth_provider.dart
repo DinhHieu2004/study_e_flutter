@@ -11,33 +11,38 @@ class AuthProvider extends ChangeNotifier {
 
   bool isLoading = false;
   String? error;
+  bool isAuthenticated = false; // quan trọng
 
-  Stream get authState => _repo.authState();
+  Stream get firebaseAuthState => _repo.authState();
 
   Future<void> login(String email, String password) async {
     _setLoading(true);
     try {
       await _repo.login(email, password);
+      isAuthenticated = true;
       error = null;
     } catch (e) {
-      error = e.toString();
+      isAuthenticated = false;
     }
     _setLoading(false);
+    notifyListeners();
   }
 
   Future<void> loginWithGoogle() async {
-    _setLoading(true);
     try {
       await _repo.loginWithGoogle();
+      isAuthenticated = true;
       error = null;
     } catch (e) {
-      error = e.toString();
+      isAuthenticated = false;
     }
-    _setLoading(false);
+    notifyListeners();
   }
 
   Future<void> logout() async {
     await _repo.logout();
+    isAuthenticated = false;
+    notifyListeners();
   }
 
   void _setLoading(bool v) {
