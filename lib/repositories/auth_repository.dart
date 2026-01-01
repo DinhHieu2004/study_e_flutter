@@ -20,6 +20,27 @@ class AuthRepository {
     await _loginWithBackend(firebaseToken);
   }
 
+  Future<void> register({
+    required String fullName,
+    required String email,
+    required String password,
+  }) async {
+    final fbUser = await _service.register(
+      fullName: fullName,
+      email: email,
+      password: password,
+    );
+
+    await _dio.post(
+      '/studyE/auth/signUp',
+      data: {
+        'uid': fbUser.uid,
+        'email': fbUser.email,
+        'name': fbUser.displayName,
+      },
+    );
+  }
+
   Future<void> _loginWithBackend(String firebaseToken) async {
     try {
       final response = await _dio.post(

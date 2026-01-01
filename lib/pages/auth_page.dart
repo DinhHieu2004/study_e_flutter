@@ -28,7 +28,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = ref.watch(authProvider); // ✅ DÒNG QUAN TRỌNG
+    final auth = ref.watch(authProvider);
 
     final width = MediaQuery.of(context).size.width;
     final double contentWidth = width > 600 ? 420 : width;
@@ -83,7 +83,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                   auth.loginWithGoogle();
                                 },
                               )
-                            : const RegisterForm(),
+                            : RegisterForm(
+                                onSuccess: () {
+                                  setState(() => isLogin = true);
+                                },
+                              ),
                       ],
                     ),
                   ),

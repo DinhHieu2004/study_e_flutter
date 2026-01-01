@@ -11,7 +11,7 @@ class AuthProvider extends ChangeNotifier {
 
   bool isLoading = false;
   String? error;
-  bool isAuthenticated = false; // quan trọng
+  bool isAuthenticated = false;
 
   Stream get firebaseAuthState => _repo.authState();
 
@@ -26,6 +26,29 @@ class AuthProvider extends ChangeNotifier {
     }
     _setLoading(false);
     notifyListeners();
+  }
+
+  Future<bool> register({
+    required String fullName,
+    required String email,
+    required String password,
+  }) async {
+    _setLoading(true);
+    try {
+      await _repo.register(
+        fullName: fullName,
+        email: email,
+        password: password,
+      );
+      error = null;
+      return true;
+    } catch (e) {
+      error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+      notifyListeners();
+    }
   }
 
   Future<void> loginWithGoogle() async {

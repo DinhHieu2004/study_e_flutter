@@ -2,6 +2,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
 
+class FirebaseRegisterResult {
+  final String uid;
+  final String email;
+  final String displayName;
+
+  FirebaseRegisterResult({
+    required this.uid,
+    required this.email,
+    required this.displayName,
+  });
+}
+
 class FirebaseAuthService {
   final _auth = FirebaseAuth.instance;
 
@@ -22,12 +34,38 @@ class FirebaseAuthService {
     return token;
   }
 
+  Future<FirebaseRegisterResult> register({
+    required String fullName,
+    required String email,
+    required String password,
+  }) async {
+    final cred = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    final user = cred.user;
+    if (user == null) {
+      throw Exception("User null after register");
+    }
+
+    await user.updateDisplayName(fullName);
+    await user.reload();
+
+    final refreshedUser = _auth.currentUser!;
+    await _auth.signOut();
+
+    return FirebaseRegisterResult(
+      uid: refreshedUser.uid,
+      email: refreshedUser.email ?? email,
+      displayName: refreshedUser.displayName ?? fullName,
+    );
+  }
+
   Future<String> loginWithGoogle() async {
     if (kIsWeb) {
-      // Web flow
       GoogleAuthProvider googleProvider = GoogleAuthProvider();
 
-      // Buộc Google popup hiển thị màn chọn account
       googleProvider.setCustomParameters({'prompt': 'select_account'});
 
       final userCredential = await _auth.signInWithPopup(googleProvider);
