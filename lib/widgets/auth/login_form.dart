@@ -2,7 +2,21 @@ import 'package:flutter/material.dart';
 
 class LoginForm extends StatelessWidget {
   final VoidCallback onLogin;
-  const LoginForm({super.key, required this.onLogin});
+  final VoidCallback onGoogleLogin;
+  final TextEditingController emailCtl;
+  final TextEditingController passwordCtl;
+  final bool isLoading;
+  final String? error;
+
+  const LoginForm({
+    super.key,
+    required this.onLogin,
+    required this.onGoogleLogin,
+    required this.emailCtl,
+    required this.passwordCtl,
+    required this.isLoading,
+    required this.error,
+  });
 
   static const primary = Color(0xFFF97316);
   static const darkText = Color(0xFF1F2937);
@@ -11,36 +25,62 @@ class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _label("Email"),
-        _input("Enter your email"),
+        _input("Enter your email", controller: emailCtl),
 
         const SizedBox(height: 16),
 
         _label("Password"),
-        _input("Enter your password", obscure: true),
+        _input("Enter your password", obscure: true, controller: passwordCtl),
 
         const SizedBox(height: 24),
 
-        _button("Log In"),
-
-        const SizedBox(height: 24),
-
-        const Text(
-          "OR",
-          textAlign: TextAlign.center,
-          style: TextStyle(color: darkText, fontWeight: FontWeight.w600),
+        ElevatedButton(
+          onPressed: isLoading ? null : onLogin,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primary,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: isLoading
+              ? const CircularProgressIndicator(color: Colors.white)
+              : const Text(
+                  "Log In",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
         ),
 
-        const SizedBox(height: 16),
+        if (error != null) ...[
+          const SizedBox(height: 12),
+          Text(error!, style: const TextStyle(color: Colors.red)),
+        ],
 
-        _googleButton(),
+        const SizedBox(height: 24),
+
+        OutlinedButton.icon(
+          onPressed: isLoading ? null : onGoogleLogin,
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            side: const BorderSide(color: border),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          icon: const Icon(Icons.g_mobiledata, size: 28, color: primary),
+          label: const Text(
+            "Sign in with Google",
+            style: TextStyle(color: darkText, fontWeight: FontWeight.w600),
+          ),
+        ),
       ],
     );
   }
 
-  /// LABEL
   Widget _label(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 6),
     child: Text(
@@ -53,62 +93,21 @@ class LoginForm extends StatelessWidget {
     ),
   );
 
-  /// INPUT
-  Widget _input(String hint, {bool obscure = false}) {
+  Widget _input(
+    String hint, {
+    bool obscure = false,
+    required TextEditingController controller,
+  }) {
     return TextField(
+      controller: controller,
       obscureText: obscure,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.grey),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 14,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: primary, width: 2),
-        ),
-      ),
-    );
-  }
-
-  /// LOGIN BUTTON
-  Widget _button(String text) {
-    return ElevatedButton(
-      onPressed: onLogin,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: primary,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  /// GOOGLE BUTTON
-  Widget _googleButton() {
-    return OutlinedButton.icon(
-      onPressed: () {},
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        side: const BorderSide(color: border),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      icon: const Icon(Icons.g_mobiledata, size: 28, color: primary),
-      label: const Text(
-        "Sign in with Google",
-        style: TextStyle(color: darkText, fontWeight: FontWeight.w600),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

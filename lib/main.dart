@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/courses_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'firebase_options.dart';
 import 'pages/home_page.dart';
 import 'pages/search_page.dart';
 import 'pages/exercise_page.dart';
 import 'pages/profile_page.dart';
 import '../../widgets/auth/auth_gate.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await initializeFirebase();
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
