@@ -6,6 +6,7 @@ import '../providers/category_provider.dart';
 import '../models/category.dart';
 import 'quiz_question_page.dart';
 import 'pronunciation_page.dart';
+import 'stats_page.dart';
 
 class ExercisePage extends ConsumerStatefulWidget {
   const ExercisePage({super.key});
@@ -64,9 +65,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
     final quizState = ref.read(quizProvider);
     if (quizState.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lỗi: ${quizState.error}")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi: ${quizState.error}")));
       return;
     }
 
@@ -99,41 +100,66 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _isPronunciationMode ? "Pronunciation" : "Practice Quiz",
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                      /// LEFT TEXT
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _isPronunciationMode
+                                  ? "Pronunciation"
+                                  : "Practice Quiz",
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _isPronunciationMode 
-                                ? "Improve your speaking skills" 
-                                : "Test your knowledge with customized quizzes",
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.white70,
+                            const SizedBox(height: 4),
+                            Text(
+                              _isPronunciationMode
+                                  ? "Improve your speaking skills"
+                                  : "Test your knowledge with customized quizzes",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white70,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                      Row(
+
+                      /// RIGHT ICONS
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 8,
                         children: [
                           GestureDetector(
-                            onTap: () => setState(() => _isPronunciationMode = true),
-                            child: _headerIcon(Icons.voice_chat, isActive: _isPronunciationMode),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const StatsScreen(),
+                              ),
+                            ),
+                            child: _headerIcon(Icons.bar_chart),
                           ),
-                          const SizedBox(width: 12),
                           GestureDetector(
-                            onTap: () => setState(() => _isPronunciationMode = false),
-                            child: _headerIcon(Icons.assignment, isActive: !_isPronunciationMode),
+                            onTap: () =>
+                                setState(() => _isPronunciationMode = true),
+                            child: _headerIcon(
+                              Icons.voice_chat,
+                              isActive: _isPronunciationMode,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () =>
+                                setState(() => _isPronunciationMode = false),
+                            child: _headerIcon(
+                              Icons.assignment,
+                              isActive: !_isPronunciationMode,
+                            ),
                           ),
                         ],
                       ),
@@ -146,8 +172,8 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
-                child: _isPronunciationMode 
-                    ? const PronunciationPage() 
+                child: _isPronunciationMode
+                    ? const PronunciationPage()
                     : _buildQuizSettings(categoriesAsync),
               ),
             ),
@@ -218,7 +244,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
                       value: null,
                       child: Text("Trộn"),
                     ),
-                    ...categories.map((c) => DropdownMenuItem(value: c, child: Text(c.name))),
+                    ...categories.map(
+                      (c) => DropdownMenuItem(value: c, child: Text(c.name)),
+                    ),
                   ],
                   onChanged: (v) => setState(() => selectedCategory = v),
                 ),
@@ -234,7 +262,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
               child: DropdownButtonFormField<String>(
                 value: selectedDifficulty,
                 decoration: _dropdownInputDecoration("Select difficulty"),
-                items: difficulties.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                items: difficulties
+                    .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                    .toList(),
                 onChanged: (v) => setState(() => selectedDifficulty = v!),
               ),
             ),
@@ -248,7 +278,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
               child: DropdownButtonFormField<String>(
                 value: selectedType,
                 decoration: _dropdownInputDecoration("Select question type"),
-                items: types.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+                items: types
+                    .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                    .toList(),
                 onChanged: (v) => setState(() => selectedType = v!),
               ),
             ),
@@ -261,18 +293,27 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF5B9FED),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 onPressed: isLoading ? null : startQuiz,
                 child: isLoading
                     ? const SizedBox(
                         width: 24,
                         height: 24,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
                       )
                     : const Text(
                         "Start Quiz",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
               ),
             ),
@@ -281,7 +322,6 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
       ),
     );
   }
-
 
   Widget _headerIcon(IconData icon, {bool isActive = false}) {
     return Container(
@@ -301,7 +341,11 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   Widget _buildLabel(String text) {
     return Text(
       text,
-      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F)),
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF1E3A5F),
+      ),
     );
   }
 

@@ -5,7 +5,7 @@ import '../widgets/videos/video_card.dart';
 import '../widgets/study_progress_circle.dart';
 import '../widgets/courses/course_card.dart';
 import 'lesson_list_page.dart';
-
+import '../screens/camera_detector_screen.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -49,25 +49,59 @@ class HomePage extends StatelessWidget {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
-
             const Text(
               "Let’s start learning!",
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.primaryBlue,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Icon(
-            Icons.chat_bubble_outline,
-            color: Colors.white,
-            size: 20,
-          ),
+        // Bọc các icon trong một Row
+        Row(
+          children: [
+            // NÚT SCAN MỚI THÊM
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CameraDetectorScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                width: 40,
+                height: 40,
+                margin: const EdgeInsets.only(
+                  right: 12,
+                ), 
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue.withOpacity(
+                    0.1,
+                  ), 
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.qr_code_scanner, 
+                  color: AppColors.primaryBlue,
+                  size: 24,
+                ),
+              ),
+            ),
+
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.chat_bubble_outline,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ],
         ),
       ],
     );

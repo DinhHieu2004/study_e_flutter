@@ -1,0 +1,166 @@
+{
+    "Cup": {
+        "vn": "Cái cốc",
+        "ipa": "/kʌp/"
+    },
+    "Mobile phone": {
+        "vn": "Điện thoại",
+        "ipa": "/ˈmoʊ.bəl foʊn/"
+    },
+    "Laptop": {
+        "vn": "Máy tính xách tay",
+        "ipa": "/ˈlæp.tɒp/"
+    },
+    "Keyboard": {
+        "vn": "Bàn phím",
+        "ipa": "/ˈkiː.bɔːrd/"
+    },
+    "Mouse": {
+        "vn": "Con chuột máy tính",
+        "ipa": "/maʊs/"
+    },
+    "Monitor": {
+        "vn": "Màn hình",
+        "ipa": "/ˈmɒn.ɪ.tər/"
+    },
+    "Bottle": {
+        "vn": "Cái chai",
+        "ipa": "/ˈbɒt.l̩/"
+    },
+    "Glass": {
+        "vn": "Cái ly thủy tinh",
+        "ipa": "/ɡlæs/"
+    },
+    "Table": {
+        "vn": "Cái bàn",
+        "ipa": "/ˈteɪ.bl̩/"
+    },
+    "Chair": {
+        "vn": "Cái ghế",
+        "ipa": "/tʃeər/"
+    },
+    "Book": {
+        "vn": "Quyển sách",
+        "ipa": "/bʊk/"
+    },
+    "Pen": {
+        "vn": "Cây bút",
+        "ipa": "/pen/"
+    },
+    "Backpack": {
+        "vn": "Ba lô",
+        "ipa": "/ˈbæk.pæk/"
+    },
+    "Handbag": {
+        "vn": "Túi xách",
+        "ipa": "/ˈhænd.bæɡ/"
+    },
+    "Umbrella": {
+        "vn": "Cái ô/dù",
+        "ipa": "/ʌmˈbrel.ə/"
+    },
+    "Watch": {
+        "vn": "Đồng hồ đeo tay",
+        "ipa": "/wɒtʃ/"
+    },
+    "Apple": {
+        "vn": "Quả táo",
+        "ipa": "/ˈæp.l̩/"
+    },
+    "Banana": {
+        "vn": "Quả chuối",
+        "ipa": "/bəˈnɑː.nə/"
+    },
+    "Orange": {
+        "vn": "Quả cam",
+        "ipa": "/ˈɒr.ɪndʒ/"
+    },
+    "Bread": {
+        "vn": "Bánh mì",
+        "ipa": "/bred/"
+    },
+    "Coffee": {
+        "vn": "Cà phê",
+        "ipa": "/ˈkɒf.i/"
+    },
+    "Plant": {
+        "vn": "Cây cảnh",
+        "ipa": "/plɑːnt/"
+    },
+    "Flower": {
+        "vn": "Bông hoa",
+        "ipa": "/ˈflaʊ.ər/"
+    },
+    "Bicycle": {
+        "vn": "Xe đạp",
+        "ipa": "/ˈbaɪ.sɪ.kl̩/"
+    },
+    "Car": {
+        "vn": "Xe ô tô",
+        "ipa": "/kɑːr/"
+    },
+    "Motorcycle": {
+        "vn": "Xe máy",
+        "ipa": "/ˈməʊ.tə.saɪ.kl̩/"
+    },
+    "Dog": {
+        "vn": "Con chó",
+        "ipa": "/dɒɡ/"
+    },
+    "Cat": {
+        "vn": "Con mèo",
+        "ipa": "/kæt/"
+    },
+    "Bird": {
+        "vn": "Con chim",
+        "ipa": "/bɜːd/"
+    },
+    "Shoes": {
+        "vn": "Đôi giày",
+        "ipa": "/ʃuːz/"
+    },
+    "Glasses": {
+        "vn": "Mắt kính",
+        "ipa": "/ˈɡlæs.ɪz/"
+    },
+    "Remote control": {
+        "vn": "Điều khiển từ xa",
+        "ipa": "/rɪˈməʊt kənˈtrəʊl/"
+    },
+    "Television": {
+        "vn": "Cái tivi",
+        "ipa": "/ˈtel.ɪ.vɪʒ.n̩/"
+    },
+    "Refrigerator": {
+        "vn": "Tủ lạnh",
+        "ipa": "/rɪˈfrɪdʒ.ə.reɪ.tər/"
+    },
+    "Microwave": {
+        "vn": "Lò vi sóng",
+        "ipa": "/ˈmaɪ.krə.weɪv/"
+    },
+    "Spoon": {
+        "vn": "Cái thìa/muỗng",
+        "ipa": "/spuːn/"
+    },
+    "Fork": {
+        "vn": "Cái nĩa",
+        "ipa": "/fɔːk/"
+    },
+    "Knife": {
+        "vn": "Con dao",
+        "ipa": "/naɪf/"
+    },
+    "Plate": {
+        "vn": "Cái đĩa",
+        "ipa": "/pleɪt/"
+    },
+    "Bowl": {
+        "vn": "Cái bát/tô",
+        "ipa": "/bəʊl/"
+    },
+    "Toothbrush": {
+        "vn": "Bàn chải đánh răng",
+        "ipa": "/ˈtuːθ.brʌʃ/"
+    }
+}
