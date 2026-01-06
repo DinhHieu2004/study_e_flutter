@@ -15,7 +15,6 @@ class QuizState {
     this.error,
   });
 
-  // Hàm này cực kỳ quan trọng để Riverpod nhận biết thay đổi
   QuizState copyWith({
     bool? loading,
     List<QuizQuestion>? questions,
@@ -24,7 +23,7 @@ class QuizState {
     return QuizState(
       loading: loading ?? this.loading,
       questions: questions ?? this.questions,
-      error: error, // Nếu là null thì reset error
+      error: error, 
     );
   }
 }
