@@ -1,4 +1,3 @@
-// lib/providers/dictionary_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repositories/dictionary_repository.dart';
 import '../models/dictionary_response.dart';
@@ -8,7 +7,7 @@ class DictionaryState {
   final DictionaryResponse? current;
   final String? error;
 
-  DictionaryState({this.isLoading = false, this.current, this.error});
+  const DictionaryState({this.isLoading = false, this.current, this.error});
 
   DictionaryState copyWith({
     bool? isLoading,
@@ -26,18 +25,19 @@ class DictionaryState {
 class DictionaryNotifier extends StateNotifier<DictionaryState> {
   final DictionaryRepository repo;
 
-  DictionaryNotifier(this.repo) : super(DictionaryState());
+  DictionaryNotifier(this.repo) : super(const DictionaryState());
 
   Future<void> searchWord(String word) async {
-    if (word.isEmpty) return;
+    final trimmed = word.trim();
+    if (trimmed.isEmpty) return;
 
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final response = await repo.getWord(word);
-      state = state.copyWith(current: response);
+      final response = await repo.getWord(trimmed);
+      state = state.copyWith(current: response, error: null);
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(error: e.toString(), current: null);
     } finally {
       state = state.copyWith(isLoading: false);
     }
