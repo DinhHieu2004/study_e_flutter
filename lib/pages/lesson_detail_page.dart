@@ -4,8 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/word_vm.dart';
 import '../providers/lesson_detail_provider.dart';
 import '../providers/word_provider.dart';
+
 import 'package:flutter_application_1/widgets/lessons/meta_pill.dart';
-import '../widgets/words/word_row.dart';
+import 'package:flutter_application_1/widgets/words/word_row.dart';
 
 import 'exercise_page.dart';
 import 'flashcard_practice_page.dart';
@@ -41,8 +42,6 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
   final Set<String> _starredWordIds = {};
 
   List<_DialogueLine> get _dialogue {
-    // NOTE: dialogue này chủ yếu để test UI + More/Less.
-    // Anh có thể thay bằng provider sau.
     switch (widget.lessonId) {
       case "l1":
         return const [
@@ -54,6 +53,8 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
           _DialogueLine(speaker: "Nam", text: "Nice to meet you too."),
           _DialogueLine(speaker: "Mai", text: "See you later. Goodbye!"),
           _DialogueLine(speaker: "Nam", text: "Bye! Have a good day."),
+          _DialogueLine(speaker: "Mai", text: "Let's meet again tomorrow morning."),
+          _DialogueLine(speaker: "Nam", text: "Sure. See you!"),
         ];
       case "l2":
         return const [
@@ -65,13 +66,17 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
           _DialogueLine(speaker: "Anna", text: "I'm fine, thanks. And you?"),
           _DialogueLine(speaker: "Linh", text: "I'm good. See you later!"),
           _DialogueLine(speaker: "Anna", text: "See you!"),
+          _DialogueLine(speaker: "Linh", text: "Have a good day!"),
         ];
       case "l3":
         return const [
           _DialogueLine(speaker: "Teacher", text: "Can you repeat that, please?"),
           _DialogueLine(speaker: "Student", text: "Sure. I said: 'I need help.'"),
           _DialogueLine(speaker: "Teacher", text: "Speak a little slower, please."),
-          _DialogueLine(speaker: "Student", text: "Okay. I need help with this question."),
+          _DialogueLine(
+            speaker: "Student",
+            text: "Okay. I need help with this question.",
+          ),
           _DialogueLine(speaker: "Teacher", text: "No problem. Let's do it together."),
           _DialogueLine(speaker: "Student", text: "Thank you so much!"),
           _DialogueLine(speaker: "Teacher", text: "You're welcome."),
@@ -168,7 +173,10 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                       const Expanded(
                         child: Text(
                           "Vocabulary",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                       ),
                       Text(
@@ -214,6 +222,18 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
     );
   }
 
+  Map<String, bool> _buildSpeakerSideMap(List<_DialogueLine> lines) {
+    final map = <String, bool>{};
+    bool nextRight = false;
+    for (final l in lines) {
+      if (!map.containsKey(l.speaker)) {
+        map[l.speaker] = nextRight;
+        nextRight = !nextRight;
+      }
+    }
+    return map;
+  }
+
   @override
   Widget build(BuildContext context) {
     const bg = Color(0xFFF7F8FC);
@@ -223,21 +243,24 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
     final description = ref.watch(lessonDescriptionProvider(widget.lessonId));
     final words = ref.watch(wordsByLessonProvider(widget.lessonId));
 
-    final highlights = words.map((w) => w.word).toList(); // highlight theo vocab
+    final highlights = words.map((w) => w.word).toList(); 
     final dialogue = _dialogue;
+    final speakerSide = _buildSpeakerSideMap(dialogue);
 
     const previewDialogueCount = 4;
-    final showAllDialogue = _dialogueExpanded || dialogue.length <= previewDialogueCount;
+    final showAllDialogue =
+        _dialogueExpanded || dialogue.length <= previewDialogueCount;
     final showingDialogue =
         showAllDialogue ? dialogue : dialogue.take(previewDialogueCount).toList();
+
+    final vocabPreview = words.take(3).map((e) => e.word).toList();
 
     return Scaffold(
       backgroundColor: bg,
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           children: [
-            // Top row
             Row(
               children: [
                 InkWell(
@@ -264,7 +287,9 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                 IconButton(
                   onPressed: () => setState(() => _lessonFavorite = !_lessonFavorite),
                   icon: Icon(
-                    _lessonFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    _lessonFavorite
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
                     color: _lessonFavorite ? Colors.redAccent : Colors.black87,
                   ),
                 ),
@@ -272,7 +297,6 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
             ),
             const SizedBox(height: 12),
 
-            // Image (giữ như hiện tại)
             ClipRRect(
               borderRadius: BorderRadius.circular(18),
               child: AspectRatio(
@@ -288,38 +312,61 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
             ),
             const SizedBox(height: 12),
 
-            // Topic + Level (đẹp hơn) + time pill
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                MetaPill(icon: Icons.local_offer_rounded, text: widget.topic),
-                MetaPill(icon: Icons.bar_chart_rounded, text: widget.level),
-                MetaPill(icon: Icons.schedule_rounded, text: "${widget.estMinutes} min"),
-              ],
+            SizedBox(
+              height: 36,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  MetaPill(icon: Icons.local_offer_rounded, text: widget.topic),
+                  const SizedBox(width: 8),
+                  MetaPill(icon: Icons.bar_chart_rounded, text: widget.level),
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryBlue.withOpacity(0.12),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: MetaPill(
+                      icon: Icons.schedule_rounded,
+                      text: "${widget.estMinutes} min",
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 14),
 
-            // Time + Description (gộp chung, time lên trước)
             _SectionCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    children: [
-                      const Icon(Icons.schedule_rounded, size: 18),
-                      const SizedBox(width: 8),
-                      const Text(
+                    children: const [
+                      Icon(Icons.schedule_rounded, size: 18),
+                      SizedBox(width: 8),
+                      Text(
                         "Estimated time",
                         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        "${widget.estMinutes} minutes",
-                        style: const TextStyle(fontSize: 14, color: textGrey),
-                      ),
                     ],
                   ),
+                  const SizedBox(height: 6),
+                  Text(
+                    "${widget.estMinutes} minutes",
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: textGrey,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Divider(height: 1, color: Color(0xFFE9ECF2)),
                   const SizedBox(height: 10),
                   const Text(
                     "Description",
@@ -328,22 +375,23 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                   const SizedBox(height: 6),
                   Text(
                     description,
-                    maxLines: _descExpanded ? null : 4,
+                    maxLines: _descExpanded ? null : 5,
                     overflow: _descExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 14,
                       color: textGrey,
                       height: 1.35,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  if (description.length > 80)
+                  if (description.trim().length > 90)
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextButton(
                         onPressed: () => setState(() => _descExpanded = !_descExpanded),
                         child: Text(
                           _descExpanded ? "Less..." : "More...",
-                          style: const TextStyle(fontWeight: FontWeight.w800),
+                          style: const TextStyle(fontWeight: FontWeight.w900),
                         ),
                       ),
                     ),
@@ -352,20 +400,35 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
             ),
             const SizedBox(height: 12),
 
-            // Dialogue (dài hơn + highlight vocab)
             _SectionCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Dialogue",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                  Row(
+                    children: const [
+                      Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                      SizedBox(width: 8),
+                      Text(
+                        "Dialogue",
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 2),
+                  const Text(
+                    "Tap More to see the full conversation",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: textGrey,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   ...showingDialogue.map(
-                    (l) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: _DialogueRow(line: l, highlights: highlights),
+                    (l) => _DialogueRow(
+                      line: l,
+                      highlights: highlights,
+                      isRight: speakerSide[l.speaker] ?? false,
                     ),
                   ),
                   if (dialogue.length > previewDialogueCount)
@@ -375,7 +438,7 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                         onPressed: () => setState(() => _dialogueExpanded = !_dialogueExpanded),
                         child: Text(
                           _dialogueExpanded ? "Less..." : "More...",
-                          style: const TextStyle(fontWeight: FontWeight.w800),
+                          style: const TextStyle(fontWeight: FontWeight.w900),
                         ),
                       ),
                     ),
@@ -384,36 +447,60 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
             ),
             const SizedBox(height: 12),
 
-            // Vocabulary entry (click để xem từ vựng)
             _SectionCard(
               child: InkWell(
                 borderRadius: BorderRadius.circular(18),
                 onTap: () => _openVocabularySheet(words),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.menu_book_rounded, size: 18),
-                    const SizedBox(width: 10),
-                    const Expanded(
-                      child: Text(
-                        "Vocabulary in this lesson",
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                    Row(
+                      children: [
+                        const Icon(Icons.menu_book_rounded, size: 18),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            "Vocabulary in this lesson",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          "${words.length} words",
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: textGrey,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        const Icon(Icons.chevron_right_rounded),
+                      ],
+                    ),
+                    if (vocabPreview.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        vocabPreview.join(" • "),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: textGrey,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    Text(
-                      "${words.length} words",
-                      style: const TextStyle(fontSize: 14, color: textGrey),
-                    ),
-                    const SizedBox(width: 6),
-                    const Icon(Icons.chevron_right_rounded),
+                    ],
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 16),
 
-            // Practice button
             SizedBox(
               height: 52,
+              width: double.infinity,
               child: ElevatedButton(
                 onPressed: _showPracticeOptions,
                 style: ElevatedButton.styleFrom(
@@ -462,34 +549,63 @@ class _DialogueLine {
 class _DialogueRow extends StatelessWidget {
   final _DialogueLine line;
   final List<String> highlights;
+  final bool isRight;
 
   const _DialogueRow({
     required this.line,
     required this.highlights,
+    required this.isRight,
   });
 
   @override
   Widget build(BuildContext context) {
-    const textGrey = Color(0xFF8A8A8A);
-
     final spans = _buildHighlightedSpans(
       "${line.speaker}: ",
       line.text,
       highlights,
       speakerStyle: const TextStyle(
         fontWeight: FontWeight.w900,
-        color: textGrey,
+        color: Color(0xFF6B6B6B),
       ),
-      normalStyle: const TextStyle(fontSize: 14, height: 1.35, color: Colors.black),
-      highlightStyle: TextStyle(
+      normalStyle: const TextStyle(
         fontSize: 14,
         height: 1.35,
-        color: Theme.of(context).colorScheme.primary,
+        color: Colors.black87,
+      ),
+      highlightStyle: const TextStyle(
+        fontSize: 14,
+        height: 1.35,
+        color: Color(0xFF0066FF),
         fontWeight: FontWeight.w900,
       ),
     );
 
-    return RichText(text: TextSpan(children: spans));
+    final bubble = Container(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width * 0.78,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isRight ? const Color(0xFFEAF2FF) : const Color(0xFFF7F8FC),
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(14),
+          topRight: const Radius.circular(14),
+          bottomLeft: Radius.circular(isRight ? 14 : 4),
+          bottomRight: Radius.circular(isRight ? 4 : 14),
+        ),
+        border: Border.all(color: const Color(0xFFE9ECF2)),
+      ),
+      child: RichText(text: TextSpan(children: spans)),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: isRight ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [bubble],
+      ),
+    );
   }
 
   List<TextSpan> _buildHighlightedSpans(
