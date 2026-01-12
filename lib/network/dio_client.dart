@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DioClient {
   String urlForAndroid = 'http://10.0.2.2:8080';
@@ -14,13 +15,15 @@ class DioClient {
         )
         ..interceptors.add(
           InterceptorsWrapper(
-            onRequest: (options, handler) {
+            onRequest: (options, handler) async {
               if (!options.path.contains('/auth/login') &&
                   !options.path.contains('/auth/register') &&
                   !options.path.contains('/dictionary/lookup')) {
-                const token =
-                    'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhNm16WVpGV3Z4ZGFrZUVJd1NiN0Z1WjhsWDQzIiwiZW1haWwiOiJoaWV1dGh1b25nMTEzQGdtYWlsLmNvbSIsIm5hbWUiOiJIaWV1IFRodW9uZyIsInVzZXJJZCI6NiwiaWF0IjoxNzY2NTU1MTU5LCJleHAiOjE3NjY2NTUwNTl9.PUmxnf_vyBzWM1xBbBXCIZYQ5fIZDLU15wLGjBgSXXVhwmevIyq-nzqPILDMVOU66j_nrTJpDtyaiftrUC9FMA';
-                options.headers['Authorization'] = 'Bearer $token';
+                final prefs = await SharedPreferences.getInstance();
+                final token = prefs.getString('jwt_token');
+                if (token != null && token.isNotEmpty) {
+                  options.headers['Authorization'] = 'Bearer $token';
+                }
               }
               return handler.next(options);
             },
