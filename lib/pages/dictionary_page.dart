@@ -72,7 +72,6 @@ class _DictionaryPageState extends ConsumerState<DictionaryPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 🔍 SEARCH BAR
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
@@ -100,7 +99,6 @@ class _DictionaryPageState extends ConsumerState<DictionaryPage> {
 
                     const SizedBox(height: 24),
 
-                    // 📘 RESULT
                     if (state.isLoading)
                       const Center(child: CircularProgressIndicator())
                     else if (state.error != null)
@@ -124,8 +122,6 @@ class _DictionaryPageState extends ConsumerState<DictionaryPage> {
 
   Widget _buildResult(state) {
     final allPhonetics = state.current!.phonetics;
-
-    // 🔥 CHỈ LẤY PHONETIC CÓ AUDIO
     final phoneticsWithAudio = allPhonetics
         .where((p) => p.audio != null && p.audio!.isNotEmpty)
         .toList();
@@ -133,7 +129,7 @@ class _DictionaryPageState extends ConsumerState<DictionaryPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 🔤 WORD
+        // WORD
         Text(
           currentWord,
           style: const TextStyle(
@@ -145,7 +141,7 @@ class _DictionaryPageState extends ConsumerState<DictionaryPage> {
 
         const SizedBox(height: 12),
 
-        // 🔊 PHONETICS (CHỈ CÁI CÓ AUDIO)
+        // PHONETICS (CHỈ CÁI CÓ AUDIO)
         if (phoneticsWithAudio.isNotEmpty)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +179,7 @@ class _DictionaryPageState extends ConsumerState<DictionaryPage> {
 
         const SizedBox(height: 20),
 
-        // 📚 MEANINGS
+        //MEANINGS
         ...state.current!.meanings.map<Widget>((meaning) {
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8),

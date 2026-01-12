@@ -3,6 +3,7 @@ import 'admin_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repositories/auth_repository.dart';
 import '../network/firebase_auth_service.dart';
+import 'flashcard_page.dart';
 
 final firebaseAuthServiceProvider = Provider<FirebaseAuthService>(
   (ref) => FirebaseAuthService(),
@@ -46,11 +47,17 @@ class ProfilePage extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Maya',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold)),
-                    Text('maya.learning@email.com',
-                        style: TextStyle(color: Colors.grey)),
+                    Text(
+                      'Maya',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'maya.learning@email.com',
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ],
                 ),
               ],
@@ -70,13 +77,18 @@ class ProfilePage extends ConsumerWidget {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Trung tâm điều khiển',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold)),
-                      Text('Quản lý tài khoản & học tập',
-                          style: TextStyle(color: Colors.white70)),
+                      Text(
+                        'Trung tâm điều khiển',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Quản lý tài khoản & học tập',
+                        style: TextStyle(color: Colors.white70),
+                      ),
                     ],
                   ),
                   ElevatedButton(
@@ -84,7 +96,8 @@ class ProfilePage extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const ManagementPage()),
+                          builder: (_) => const ManagementPage(),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -100,6 +113,22 @@ class ProfilePage extends ConsumerWidget {
             const SizedBox(height: 30),
 
             _buildMenuItem(Icons.history, 'Lịch sử học tập'),
+            _buildMenuItem(
+              Icons.collections_bookmark,
+              'Flash card từ vựng sở hữu',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const FlashcardPage(
+                      lessonId: 1,
+                      title: 'Flash card của tôi',
+                    ),
+                  ),
+                );
+              },
+            ),
+
             _buildMenuItem(Icons.card_membership, 'Gói Premium'),
             _buildMenuItem(Icons.workspace_premium, 'Chứng chỉ của tôi'),
             _buildMenuItem(Icons.notifications_none, 'Cài đặt thông báo'),
@@ -112,11 +141,13 @@ class ProfilePage extends ConsumerWidget {
               label: const Text(
                 'Đăng xuất',
                 style: TextStyle(
-                    color: Colors.red, fontWeight: FontWeight.w600),
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               onPressed: () async {
                 await firebaseService.logout(); // Firebase
-                await authRepo.logout();        // Backend + clear JWT
+                await authRepo.logout(); // Backend + clear JWT
               },
             ),
           ],
@@ -125,12 +156,12 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title) {
+  Widget _buildMenuItem(IconData icon, String title, {VoidCallback? onTap}) {
     return ListTile(
       leading: Icon(icon, color: Colors.black87),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }
