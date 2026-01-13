@@ -5,6 +5,8 @@ import '../widgets/videos/video_card.dart';
 import '../widgets/study_progress_circle.dart';
 import '../widgets/courses/course_card.dart';
 import 'lesson_list_page.dart';
+import '../screens/camera_detector_screen.dart';
+import 'dictionary_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -20,6 +22,7 @@ class HomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(context),
+              _buildDictionarySearch(context),
               const SizedBox(height: 24),
               _buildStudyCard(context),
               const SizedBox(height: 16),
@@ -49,27 +52,94 @@ class HomePage extends StatelessWidget {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
-
             const Text(
               "Let’s start learning!",
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.primaryBlue,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Icon(
-            Icons.chat_bubble_outline,
-            color: Colors.white,
-            size: 20,
-          ),
+        // Bọc các icon trong một Row
+        Row(
+          children: [
+            // NÚT SCAN MỚI THÊM
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CameraDetectorScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                width: 40,
+                height: 40,
+                margin: const EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.qr_code_scanner,
+                  color: AppColors.primaryBlue,
+                  size: 24,
+                ),
+              ),
+            ),
+
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.chat_bubble_outline,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _buildDictionarySearch(BuildContext context) {
+    final controller = TextEditingController();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: "Search dictionary...",
+          border: InputBorder.none,
+          icon: const Icon(Icons.search, color: AppColors.primaryBlue),
+        ),
+        onSubmitted: (word) {
+          final trimmed = word.trim();
+          if (trimmed.isEmpty) return;
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => DictionaryPage(word: trimmed)),
+          );
+        },
+      ),
     );
   }
 
