@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/course_provider.dart';
-import 'lesson_list_page.dart';
+import '../models/course_vm.dart';
 import '../widgets/courses/course_list_view.dart';
 import '../widgets/courses/courses_filter_chips.dart';
 import '../widgets/courses/courses_search_bar.dart';
 import '../widgets/courses/courses_top_bar.dart';
-import '../models/course_vm.dart';
+import 'lesson_list_page.dart';
 
 class CoursesPage extends ConsumerStatefulWidget {
   final VoidCallback? onClose;
-
   const CoursesPage({super.key, this.onClose});
 
   @override
@@ -35,9 +34,11 @@ class _CoursesPageState extends ConsumerState<CoursesPage> {
     bool matchChip(CourseVm c) {
       if (_selectedChip == 0) return true; // All
       final label = _chips[_selectedChip].toLowerCase();
-      if (label == "beginner") return c.level.toLowerCase().startsWith("a");
-      if (label == "intermediate") return c.level.toLowerCase().startsWith("b");
-      if (label == "advanced") return c.level.toLowerCase().startsWith("c");
+
+      final lv = c.level.toLowerCase();
+      if (label == "beginner") return lv.startsWith("a");
+      if (label == "intermediate") return lv.startsWith("b");
+      if (label == "advanced") return lv.startsWith("c");
       return true;
     }
 

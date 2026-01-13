@@ -29,7 +29,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0066FF)),
         useMaterial3: false,
       ),
-      home: AuthGate(),
+      // home: AuthGate(),
+      home: MainLayout(),
     );
   }
 }
