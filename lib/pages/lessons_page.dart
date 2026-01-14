@@ -1,26 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/course_provider.dart';
 import '../models/course_vm.dart';
+import '../providers/lessons_provider.dart';
+import '../widgets/courses/course_card.dart';
 import '../widgets/courses/course_list_view.dart';
 import '../widgets/courses/courses_filter_chips.dart';
 import '../widgets/courses/courses_search_bar.dart';
 import '../widgets/courses/courses_top_bar.dart';
-import 'lesson_list_page.dart';
 
-class CoursesPage extends ConsumerStatefulWidget {
+class LessonsPage extends ConsumerStatefulWidget {
   final VoidCallback? onClose;
-  const CoursesPage({super.key, this.onClose});
+  const LessonsPage({super.key, this.onClose});
 
   @override
-  ConsumerState<CoursesPage> createState() => _CoursesPageState();
+  ConsumerState<LessonsPage> createState() => _LessonsPageState();
 }
 
-class _CoursesPageState extends ConsumerState<CoursesPage> {
+class _LessonsPageState extends ConsumerState<LessonsPage> {
   final _searchCtl = TextEditingController();
   int _selectedChip = 0;
 
-  final List<String> _chips = const ["All", "Beginner", "Intermediate", "Advanced"];
+  final List<String> _chips = const [
+    "All",
+    "Beginner",
+    "Intermediate",
+    "Advanced",
+  ];
 
   @override
   void dispose() {
@@ -32,7 +37,7 @@ class _CoursesPageState extends ConsumerState<CoursesPage> {
     final q = _searchCtl.text.trim().toLowerCase();
 
     bool matchChip(CourseVm c) {
-      if (_selectedChip == 0) return true; // All
+      if (_selectedChip == 0) return true;
       final label = _chips[_selectedChip].toLowerCase();
 
       final lv = c.level.toLowerCase();
@@ -53,33 +58,44 @@ class _CoursesPageState extends ConsumerState<CoursesPage> {
     return all.where((c) => matchChip(c) && matchQuery(c)).toList();
   }
 
-  void _openCourse(CourseVm c) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => LessonListPage(
-          courseTitle: c.title,
-          courseLevel: c.level,
-          courseImageAsset: c.imagePath,
-          totalLessons: c.lessonCount,
-          doneLessons: 0,
-          estMinutes: c.lessonCount * 7,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final allCourses = ref.watch(courseListProvider);
-    final courses = _filterCourses(allCourses);
+    final topicsAsync = ref.watch(topicsProvider);
+    final selectedTopicId = ref.watch(selectedTopicIdProvider);
+
+    final lessonsAsync = ref.watch(lessonsBySelectedTopicProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
-            CoursesTopBar(onClose: widget.onClose, title: "Topics"),
+            CoursesTopBar(
+              onClose: widget.onClose,
+              title: "Lessons with topics",
+            ),
+            const SizedBox(height: 8),
+
+            topicsAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (e, _) => Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Text("Load topics error: $e"),
+              ),
+              data: (topics) {
+                if (selectedTopicId == null && topics.isNotEmpty) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    ref.read(selectedTopicIdProvider.notifier).state =
+                        topics.first.id;
+                  });
+                }
+                return const SizedBox.shrink(); 
+              },
+            ),
+
             const SizedBox(height: 8),
 
             Padding(
@@ -103,9 +119,18 @@ class _CoursesPageState extends ConsumerState<CoursesPage> {
             const SizedBox(height: 12),
 
             Expanded(
-              child: CourseListView(
-                courses: courses,
-                onCourseTap: _openCourse,
+              child: lessonsAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, _) => Center(child: Text("Load lessons error: $e")),
+                data: (all) {
+                  final courses = _filterCourses(all);
+                  return CourseListView(
+                    courses: courses,
+                    onCourseTap: (c) {
+                      debugPrint("Tap lesson: ${c.title}");
+                    },
+                  );
+                },
               ),
             ),
           ],

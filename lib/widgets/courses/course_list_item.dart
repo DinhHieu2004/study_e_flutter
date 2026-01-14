@@ -43,7 +43,7 @@ class CourseListItem extends StatelessWidget {
         Colors.white,
       ),
       CourseCardStatus.activeSecondary => (
-        const Color(0xFFFF8A00), 
+        const Color(0xFFFF8A00),
         const Color(0xFFFF8A00),
         Colors.white,
       ),
@@ -53,6 +53,45 @@ class CourseListItem extends StatelessWidget {
         Colors.black87,
       ),
     };
+
+    final path = imagePath.trim();
+    final isUrl = path.startsWith('http://') || path.startsWith('https://');
+
+    Widget imageWidget;
+    if (path.isEmpty) {
+      imageWidget = Container(
+        width: 80,
+        height: 65,
+        color: Colors.grey.shade300,
+        child: const Icon(Icons.image, color: Colors.white70, size: 28),
+      );
+    } else if (isUrl) {
+      imageWidget = Image.network(
+        path,
+        width: 80,
+        height: 65,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Container(
+          width: 80,
+          height: 65,
+          color: Colors.grey.shade300,
+          child: const Icon(Icons.broken_image, color: Colors.white70, size: 28),
+        ),
+      );
+    } else {
+      imageWidget = Image.asset(
+        path,
+        width: 80,
+        height: 65,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Container(
+          width: 80,
+          height: 65,
+          color: Colors.grey.shade300,
+          child: const Icon(Icons.broken_image, color: Colors.white70, size: 28),
+        ),
+      );
+    }
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -71,12 +110,7 @@ class CourseListItem extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  child: Image.asset(
-                    imagePath,
-                    width: 80,
-                    height: 65,
-                    fit: BoxFit.cover,
-                  ),
+                  child: imageWidget,
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -92,9 +126,7 @@ class CourseListItem extends StatelessWidget {
               ],
             ),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,9 +152,7 @@ class CourseListItem extends StatelessWidget {
               ],
             ),
           ),
-
           const SizedBox(width: 12),
-
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
