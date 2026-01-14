@@ -64,7 +64,7 @@ class _LessonsPageState extends ConsumerState<LessonsPage> {
     final topicsAsync = ref.watch(topicsProvider);
     final selectedTopicId = ref.watch(selectedTopicIdProvider);
 
-    final lessonsAsync = ref.watch(lessonsBySelectedTopicProvider);
+    final lessonsAsync = ref.watch(lessonsProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,

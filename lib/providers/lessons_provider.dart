@@ -13,12 +13,8 @@ final topicsProvider = FutureProvider<List<TopicModel>>((ref) async {
 
 final selectedTopicIdProvider = StateProvider<int?>((ref) => null);
 
-final lessonsBySelectedTopicProvider = FutureProvider<List<CourseVm>>((ref) async {
-  final topicId = ref.watch(selectedTopicIdProvider);
-  if (topicId == null) return const [];
-
+final lessonsProvider = FutureProvider<List<CourseVm>>((ref) async {
   final repo = ref.read(lessonsRepositoryProvider);
-  final page = await repo.getLessonsByTopic(topicId: topicId, page: 0, size: 50);
-
+  final page = await repo.getLessons(page: 0, size: 50); 
   return page.items.map((e) => e.toCourseVm()).toList();
 });

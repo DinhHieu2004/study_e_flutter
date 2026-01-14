@@ -8,8 +8,8 @@ class LessonsRepository {
 
   static const _prefix = '/studyE/api';
 
-  Future<PageResponse<LessonResponseModel>> getLessonsByTopic({
-    required int topicId,
+  Future<PageResponse<LessonResponseModel>> getLessons({
+    int? topicId,
     int page = 0,
     int size = 50,
   }) async {
@@ -17,7 +17,7 @@ class LessonsRepository {
       final res = await _dio.get(
         '$_prefix/lessions',
         queryParameters: {
-          'topicId': topicId,
+          if (topicId != null) 'topicId': topicId,
           'page': page,
           'size': size,
         },
