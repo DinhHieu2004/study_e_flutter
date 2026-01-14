@@ -11,7 +11,7 @@ class CoursesSearchBar extends StatelessWidget {
     required this.controller,
     this.onChanged,
     this.onClear,
-    this.hintText = "Search course...",
+    this.hintText = "Search topic...",
   });
 
   @override

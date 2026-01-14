@@ -79,7 +79,7 @@ class _CoursesPageState extends ConsumerState<CoursesPage> {
       body: SafeArea(
         child: Column(
           children: [
-            CoursesTopBar(onClose: widget.onClose, title: "Courses"),
+            CoursesTopBar(onClose: widget.onClose, title: "Topics"),
             const SizedBox(height: 8),
 
             Padding(

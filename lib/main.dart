@@ -135,7 +135,7 @@ class _MainLayoutState extends State<MainLayout> {
                 activeIcon: Icon(
                   dimAllTabs ? Icons.menu_book_outlined : Icons.menu_book,
                 ),
-                label: "Courses",
+                label: "Topics",
               ),
               const BottomNavigationBarItem(
                 icon: Icon(Icons.search),

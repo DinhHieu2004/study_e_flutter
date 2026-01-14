@@ -27,7 +27,7 @@ final courseListProvider = Provider<List<CourseVm>>((ref) {
     ),
     CourseVm(
       imagePath: "assets/imgs/film.png",
-      topic: "Working",
+      topic: "Film",
       title: "Office English",
       description: "Emails & meetings with colleagues in your company",
       level: "A2",
@@ -37,7 +37,7 @@ final courseListProvider = Provider<List<CourseVm>>((ref) {
     ),
     CourseVm(
       imagePath: "assets/imgs/friend.png",
-      topic: "Working",
+      topic: "Friend",
       title: "Office English",
       description: "Emails & meetings with colleagues in your company",
       level: "A2",
