@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/word_vm.dart';
 import '../providers/lesson_detail_provider.dart';
-import '../providers/word_provider.dart';
 
 import 'package:flutter_application_1/widgets/lessons/meta_pill.dart';
-import 'package:flutter_application_1/widgets/words/word_row.dart';
 
 import 'exercise_page.dart';
 import 'flashcard_practice_page.dart';
@@ -14,8 +11,7 @@ import 'flashcard_practice_page.dart';
 class LessonDetailPage extends ConsumerStatefulWidget {
   final String lessonId;
   final String title;
-
-  final String imageAsset;
+  final String imageAsset; 
   final String topic;
   final String level;
   final int estMinutes;
@@ -39,59 +35,7 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
   bool _descExpanded = false;
 
   bool _lessonFavorite = false;
-  final Set<String> _starredWordIds = {};
-
-  List<_DialogueLine> get _dialogue {
-    switch (widget.lessonId) {
-      case "l1":
-        return const [
-          _DialogueLine(speaker: "Mai", text: "Hi! Good morning."),
-          _DialogueLine(speaker: "Nam", text: "Good morning! How are you?"),
-          _DialogueLine(speaker: "Mai", text: "I'm good, thanks. And you?"),
-          _DialogueLine(speaker: "Nam", text: "Great. Nice to see you!"),
-          _DialogueLine(speaker: "Mai", text: "Nice to meet you, Nam."),
-          _DialogueLine(speaker: "Nam", text: "Nice to meet you too."),
-          _DialogueLine(speaker: "Mai", text: "See you later. Goodbye!"),
-          _DialogueLine(speaker: "Nam", text: "Bye! Have a good day."),
-          _DialogueLine(speaker: "Mai", text: "Let's meet again tomorrow morning."),
-          _DialogueLine(speaker: "Nam", text: "Sure. See you!"),
-        ];
-      case "l2":
-        return const [
-          _DialogueLine(speaker: "Linh", text: "Hello! Are you new here?"),
-          _DialogueLine(speaker: "Anna", text: "Yes, I am. Nice to meet you."),
-          _DialogueLine(speaker: "Linh", text: "Nice to meet you too. I'm Linh."),
-          _DialogueLine(speaker: "Anna", text: "I'm Anna. Thanks for saying hi!"),
-          _DialogueLine(speaker: "Linh", text: "How are you today?"),
-          _DialogueLine(speaker: "Anna", text: "I'm fine, thanks. And you?"),
-          _DialogueLine(speaker: "Linh", text: "I'm good. See you later!"),
-          _DialogueLine(speaker: "Anna", text: "See you!"),
-          _DialogueLine(speaker: "Linh", text: "Have a good day!"),
-        ];
-      case "l3":
-        return const [
-          _DialogueLine(speaker: "Teacher", text: "Can you repeat that, please?"),
-          _DialogueLine(speaker: "Student", text: "Sure. I said: 'I need help.'"),
-          _DialogueLine(speaker: "Teacher", text: "Speak a little slower, please."),
-          _DialogueLine(
-            speaker: "Student",
-            text: "Okay. I need help with this question.",
-          ),
-          _DialogueLine(speaker: "Teacher", text: "No problem. Let's do it together."),
-          _DialogueLine(speaker: "Student", text: "Thank you so much!"),
-          _DialogueLine(speaker: "Teacher", text: "You're welcome."),
-        ];
-      default:
-        return const [
-          _DialogueLine(speaker: "A", text: "This is a sample dialogue."),
-          _DialogueLine(speaker: "B", text: "It helps test the UI layout."),
-          _DialogueLine(speaker: "A", text: "Tap More... to expand."),
-          _DialogueLine(speaker: "B", text: "Tap Less... to collapse."),
-          _DialogueLine(speaker: "A", text: "We can highlight vocabulary words here."),
-          _DialogueLine(speaker: "B", text: "And also test longer conversations."),
-        ];
-    }
-  }
+  final Set<int> _starredVocabIds = {};
 
   void _showPracticeOptions() {
     showModalBottomSheet(
@@ -147,7 +91,7 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
     );
   }
 
-  void _openVocabularySheet(List<WordVm> words) {
+  void _openVocabularySheet(List<dynamic> vocabs) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -180,7 +124,7 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                         ),
                       ),
                       Text(
-                        "${words.length} words",
+                        "${vocabs.length} words",
                         style: const TextStyle(
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF8A8A8A),
@@ -192,23 +136,95 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                   Expanded(
                     child: ListView.separated(
                       controller: controller,
-                      itemCount: words.length,
+                      itemCount: vocabs.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (_, i) {
-                        final w = words[i];
-                        final starred = _starredWordIds.contains(w.id);
-                        return WordRow(
-                          word: w,
-                          starred: starred,
-                          onStar: () {
-                            setState(() {
-                              if (starred) {
-                                _starredWordIds.remove(w.id);
-                              } else {
-                                _starredWordIds.add(w.id);
-                              }
-                            });
-                          },
+                        final v = vocabs[i];
+                        final int id = (v.id as num).toInt();
+                        final bool starred = _starredVocabIds.contains(id);
+
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () {},
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFE9ECF2)),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              v.word ?? "",
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w900,
+                                              ),
+                                            ),
+                                          ),
+                                          if ((v.phonetic ?? "").toString().trim().isNotEmpty)
+                                            Text(
+                                              v.phonetic,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                color: Color(0xFF8A8A8A),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        v.meaning ?? "",
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          height: 1.35,
+                                          color: Color(0xFF6B6B6B),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      if ((v.example ?? "").toString().trim().isNotEmpty) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          v.example,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            height: 1.35,
+                                            color: Color(0xFF8A8A8A),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      if (starred) {
+                                        _starredVocabIds.remove(id);
+                                      } else {
+                                        _starredVocabIds.add(id);
+                                      }
+                                    });
+                                  },
+                                  icon: Icon(
+                                    starred ? Icons.star_rounded : Icons.star_border_rounded,
+                                    color: starred ? const Color(0xFFFFB300) : Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         );
                       },
                     ),
@@ -234,290 +250,374 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
     return map;
   }
 
+  Widget _buildCover(String path) {
+    final p = path.trim();
+    final isUrl = p.startsWith('http://') || p.startsWith('https://');
+
+    if (p.isEmpty) {
+      return Container(
+        color: Colors.grey.shade300,
+        child: const Center(child: Icon(Icons.image_not_supported_outlined)),
+      );
+    }
+
+    return isUrl
+        ? Image.network(
+            p,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              color: Colors.grey.shade300,
+              child: const Center(child: Icon(Icons.image_not_supported_outlined)),
+            ),
+          )
+        : Image.asset(
+            p,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              color: Colors.grey.shade300,
+              child: const Center(child: Icon(Icons.image_not_supported_outlined)),
+            ),
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
     const bg = Color(0xFFF7F8FC);
     const textGrey = Color(0xFF8A8A8A);
     const primaryBlue = Color(0xFF0066FF);
 
-    final description = ref.watch(lessonDescriptionProvider(widget.lessonId));
-    final words = ref.watch(wordsByLessonProvider(widget.lessonId));
+    final dataAsync = ref.watch(lessonDetailDataProvider(widget.lessonId));
 
-    final highlights = words.map((w) => w.word).toList(); 
-    final dialogue = _dialogue;
-    final speakerSide = _buildSpeakerSideMap(dialogue);
+    return dataAsync.when(
+      loading: () => const Scaffold(
+        backgroundColor: bg,
+        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+      ),
+      error: (e, _) => Scaffold(
+        backgroundColor: bg,
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text("Load lesson detail error: $e"),
+            ),
+          ),
+        ),
+      ),
+      data: (data) {
+        final lesson = data.lesson;
+        final dialogs = data.dialogs;
+        final vocabs = data.vocabularies;
 
-    const previewDialogueCount = 4;
-    final showAllDialogue =
-        _dialogueExpanded || dialogue.length <= previewDialogueCount;
-    final showingDialogue =
-        showAllDialogue ? dialogue : dialogue.take(previewDialogueCount).toList();
+        final pageTitle = (lesson.title.trim().isNotEmpty) ? lesson.title : widget.title;
+        final topicName = (lesson.topicName.trim().isNotEmpty) ? lesson.topicName : widget.topic;
+        final level = (lesson.level.trim().isNotEmpty) ? lesson.level : widget.level;
+        final description = (lesson.description.trim().isNotEmpty)
+            ? lesson.description
+            : "No description.";
 
-    final vocabPreview = words.take(3).map((e) => e.word).toList();
+        final coverPath = (lesson.imageUrl ?? "").toString().trim().isNotEmpty
+            ? lesson.imageUrl.toString()
+            : widget.imageAsset;
 
-    return Scaffold(
-      backgroundColor: bg,
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          children: [
-            Row(
+        final highlights = vocabs
+            .map((v) => (v.word ?? "").toString().trim())
+            .where((w) => w.isNotEmpty)
+            .toList();
+
+        final dialogue = dialogs
+            .map<_DialogueLine>(
+              (d) => _DialogueLine(
+                speaker: (d.speaker ?? "").toString(),
+                text: (d.content ?? "").toString(),
+              ),
+            )
+            .where((l) => l.speaker.trim().isNotEmpty || l.text.trim().isNotEmpty)
+            .toList();
+
+        final speakerSide = _buildSpeakerSideMap(dialogue);
+
+        const previewDialogueCount = 4;
+        final showAllDialogue =
+            _dialogueExpanded || dialogue.length <= previewDialogueCount;
+        final showingDialogue = showAllDialogue
+            ? dialogue
+            : dialogue.take(previewDialogueCount).toList();
+
+        final vocabPreview = vocabs
+            .take(3)
+            .map((e) => (e.word ?? "").toString())
+            .where((e) => e.trim().isNotEmpty)
+            .toList();
+
+        return Scaffold(
+          backgroundColor: bg,
+          body: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
               children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  onTap: () => Navigator.pop(context),
-                  child: const Padding(
-                    padding: EdgeInsets.all(6),
-                    child: Icon(Icons.arrow_back, size: 20),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    widget.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: () => setState(() => _lessonFavorite = !_lessonFavorite),
-                  icon: Icon(
-                    _lessonFavorite
-                        ? Icons.favorite_rounded
-                        : Icons.favorite_border_rounded,
-                    color: _lessonFavorite ? Colors.redAccent : Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            ClipRRect(
-              borderRadius: BorderRadius.circular(18),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Image.asset(
-                  widget.imageAsset,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Center(
-                    child: Icon(Icons.image_not_supported_outlined),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            SizedBox(
-              height: 36,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  MetaPill(icon: Icons.local_offer_rounded, text: widget.topic),
-                  const SizedBox(width: 8),
-                  MetaPill(icon: Icons.bar_chart_rounded, text: widget.level),
-                  const SizedBox(width: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: primaryBlue.withOpacity(0.12),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: MetaPill(
-                      icon: Icons.schedule_rounded,
-                      text: "${widget.estMinutes} min",
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 14),
-
-            _SectionCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: const [
-                      Icon(Icons.schedule_rounded, size: 18),
-                      SizedBox(width: 8),
-                      Text(
-                        "Estimated time",
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    "${widget.estMinutes} minutes",
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: textGrey,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Divider(height: 1, color: Color(0xFFE9ECF2)),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Description",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    description,
-                    maxLines: _descExpanded ? null : 5,
-                    overflow: _descExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: textGrey,
-                      height: 1.35,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (description.trim().length > 90)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton(
-                        onPressed: () => setState(() => _descExpanded = !_descExpanded),
-                        child: Text(
-                          _descExpanded ? "Less..." : "More...",
-                          style: const TextStyle(fontWeight: FontWeight.w900),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            _SectionCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: const [
-                      Icon(Icons.chat_bubble_outline_rounded, size: 18),
-                      SizedBox(width: 8),
-                      Text(
-                        "Dialogue",
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    "Tap More to see the full conversation",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: textGrey,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ...showingDialogue.map(
-                    (l) => _DialogueRow(
-                      line: l,
-                      highlights: highlights,
-                      isRight: speakerSide[l.speaker] ?? false,
-                    ),
-                  ),
-                  if (dialogue.length > previewDialogueCount)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton(
-                        onPressed: () => setState(() => _dialogueExpanded = !_dialogueExpanded),
-                        child: Text(
-                          _dialogueExpanded ? "Less..." : "More...",
-                          style: const TextStyle(fontWeight: FontWeight.w900),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            _SectionCard(
-              child: InkWell(
-                borderRadius: BorderRadius.circular(18),
-                onTap: () => _openVocabularySheet(words),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.menu_book_rounded, size: 18),
-                        const SizedBox(width: 10),
-                        const Expanded(
-                          child: Text(
-                            "Vocabulary in this lesson",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          "${words.length} words",
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: textGrey,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Icon(Icons.chevron_right_rounded),
-                      ],
+                    InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () => Navigator.pop(context),
+                      child: const Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Icon(Icons.arrow_back, size: 20),
+                      ),
                     ),
-                    if (vocabPreview.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        vocabPreview.join(" • "),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        pageTitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () => setState(() => _lessonFavorite = !_lessonFavorite),
+                      icon: Icon(
+                        _lessonFavorite
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_border_rounded,
+                        color: _lessonFavorite ? Colors.redAccent : Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: _buildCover(coverPath),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                SizedBox(
+                  height: 36,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      MetaPill(icon: Icons.local_offer_rounded, text: topicName),
+                      const SizedBox(width: 8),
+                      MetaPill(icon: Icons.bar_chart_rounded, text: level),
+                      const SizedBox(width: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryBlue.withOpacity(0.12),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: MetaPill(
+                          icon: Icons.schedule_rounded,
+                          text: "${widget.estMinutes} min",
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                _SectionCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: const [
+                          Icon(Icons.schedule_rounded, size: 18),
+                          SizedBox(width: 8),
+                          Text(
+                            "Estimated time",
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        "${widget.estMinutes} minutes",
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: textGrey,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Divider(height: 1, color: Color(0xFFE9ECF2)),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "Description",
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        description,
+                        maxLines: _descExpanded ? null : 5,
+                        overflow: _descExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: textGrey,
+                          height: 1.35,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (description.trim().length > 90)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton(
+                            onPressed: () => setState(() => _descExpanded = !_descExpanded),
+                            child: Text(
+                              _descExpanded ? "Less..." : "More...",
+                              style: const TextStyle(fontWeight: FontWeight.w900),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                _SectionCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: const [
+                          Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                          SizedBox(width: 8),
+                          Text(
+                            "Dialogue",
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      const Text(
+                        "Tap More to see the full conversation",
+                        style: TextStyle(
                           fontSize: 12,
                           color: textGrey,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
+                      const SizedBox(height: 10),
 
-            SizedBox(
-              height: 52,
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _showPracticeOptions,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryBlue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
+                      if (showingDialogue.isEmpty)
+                        const Text(
+                          "No dialogue yet.",
+                          style: TextStyle(color: textGrey, fontWeight: FontWeight.w700),
+                        )
+                      else
+                        ...showingDialogue.map(
+                          (l) => _DialogueRow(
+                            line: l,
+                            highlights: highlights,
+                            isRight: speakerSide[l.speaker] ?? false,
+                          ),
+                        ),
+
+                      if (dialogue.length > previewDialogueCount)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton(
+                            onPressed: () =>
+                                setState(() => _dialogueExpanded = !_dialogueExpanded),
+                            child: Text(
+                              _dialogueExpanded ? "Less..." : "More...",
+                              style: const TextStyle(fontWeight: FontWeight.w900),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-                child: const Text(
-                  "Practice",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                const SizedBox(height: 12),
+
+                _SectionCard(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () => _openVocabularySheet(vocabs),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.menu_book_rounded, size: 18),
+                            const SizedBox(width: 10),
+                            const Expanded(
+                              child: Text(
+                                "Vocabulary in this lesson",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              "${vocabs.length} words",
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: textGrey,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.chevron_right_rounded),
+                          ],
+                        ),
+                        if (vocabPreview.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            vocabPreview.join(" • "),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: textGrey,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 16),
+
+                SizedBox(
+                  height: 52,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _showPracticeOptions,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryBlue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                    child: const Text(
+                      "Practice",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

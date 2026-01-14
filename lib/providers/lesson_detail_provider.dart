@@ -1,21 +1,35 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/lesson_detail_data.dart';
+import '../models/dialog_response.dart';
+import '../models/vocabulary_response.dart';
+import '../repositories/lesson_detail_repository.dart';
 
-final lessonDescriptionProvider =
-    Provider.family<String, String>((ref, lessonId) {
-  switch (lessonId) {
-    case "l1":
-      return "Learn common greetings used in daily conversations.";
-    case "l2":
-      return "Practice saying hello and starting a simple conversation.";
-    case "l3":
-      return "Introduce yourself and ask about others.";
-    case "l4":
-      return "Learn how to communicate clearly and ask for clarification.";
-    case "l5":
-      return "Practice opening a conversation in different situations.";
-    case "l6":
-      return "Learn how to say and understand numbers in daily life.";
-    default:
-      return "Learn useful vocabulary through short dialogues.";
+final lessonDetailRepositoryProvider = Provider((ref) => LessonDetailRepository());
+
+final lessonDetailDataProvider =
+    FutureProvider.family<LessonDetailData, String>((ref, lessonId) async {
+  final repo = ref.read(lessonDetailRepositoryProvider);
+
+  final lesson = await repo.getLessonById(lessonId);
+
+  List<DialogResponse> dialogs = const [];
+  List<VocabularyResponse> vocabs = const [];
+
+  try {
+    dialogs = await repo.getDialogs(lessonId);
+  } catch (_) {
+    dialogs = const [];
   }
+
+  try {
+    vocabs = await repo.getVocabReview(lessonId);
+  } catch (_) {
+    vocabs = const [];
+  }
+
+  return LessonDetailData(
+    lesson: lesson,
+    dialogs: dialogs,
+    vocabularies: vocabs,
+  );
 });
