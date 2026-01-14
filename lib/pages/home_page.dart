@@ -6,7 +6,7 @@ import '../widgets/lessons/lesson_card.dart';
 import '../widgets/videos/video_card.dart';
 import '../widgets/study_progress_circle.dart';
 import '../widgets/courses/course_card.dart';
-import 'lesson_list_page.dart';
+// import 'lesson_list_page.dart';
 import '../screens/camera_detector_screen.dart';
 import 'dictionary_page.dart';
 
@@ -187,19 +187,7 @@ class HomePage extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                     ),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const LessonListPage(
-                            courseTitle: "English for Beginner",
-                            courseLevel: "A1-A2",
-                            courseImageAsset: "assets/imgs/music.png",
-                            totalLessons: 12,
-                            doneLessons: 0,
-                            estMinutes: 90,
-                          ),
-                        ),
-                      );
+                      debugPrint("TODO: open lessons");
                     },
                     child: const Text(
                       "Let's start",

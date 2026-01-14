@@ -1,7 +1,4 @@
-import 'course_vm.dart';
-import '../widgets/courses/course_list_item.dart'; 
-
-class LessonResponseModel {
+class LessonDetailResponse {
   final int id;
   final String title;
   final String description;
@@ -10,7 +7,7 @@ class LessonResponseModel {
   final int topicId;
   final String topicName;
 
-  LessonResponseModel({
+  LessonDetailResponse({
     required this.id,
     required this.title,
     required this.description,
@@ -20,8 +17,8 @@ class LessonResponseModel {
     this.imageUrl,
   });
 
-  factory LessonResponseModel.fromJson(Map<String, dynamic> json) {
-    return LessonResponseModel(
+  factory LessonDetailResponse.fromJson(Map<String, dynamic> json) {
+    return LessonDetailResponse(
       id: (json['id'] as num).toInt(),
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
@@ -29,19 +26,6 @@ class LessonResponseModel {
       imageUrl: json['imageUrl'] as String?,
       topicId: (json['topicId'] as num?)?.toInt() ?? 0,
       topicName: json['topicName'] as String? ?? '',
-    );
-  }
-
-  CourseVm toCourseVm() {
-    return CourseVm(
-      id: id,
-      imagePath: imageUrl ?? '',       
-      topic: topicName,
-      title: title,
-      description: description,
-      level: level,
-      lessonCount: 0,                  
-      status: CourseCardStatus.normal,  
     );
   }
 }

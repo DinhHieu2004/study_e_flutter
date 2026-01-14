@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/lesson_detail_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/course_vm.dart';
 import '../providers/lessons_provider.dart';
@@ -92,7 +93,7 @@ class _LessonsPageState extends ConsumerState<LessonsPage> {
                         topics.first.id;
                   });
                 }
-                return const SizedBox.shrink(); 
+                return const SizedBox.shrink();
               },
             ),
 
@@ -127,7 +128,20 @@ class _LessonsPageState extends ConsumerState<LessonsPage> {
                   return CourseListView(
                     courses: courses,
                     onCourseTap: (c) {
-                      debugPrint("Tap lesson: ${c.title}");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => LessonDetailPage(
+                            lessonId: c.id.toString(),
+                            title: c.title,
+                            imageAsset: c
+                                .imagePath, 
+                            topic: c.topic,
+                            level: c.level,
+                            estMinutes: 0, 
+                          ),
+                        ),
+                      );
                     },
                   );
                 },

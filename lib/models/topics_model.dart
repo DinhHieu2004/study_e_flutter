@@ -28,6 +28,7 @@ class TopicModel {
   /// Mapper: Topic (domain) sang CourseVm (ui)
   CourseVm toCourseVm() {
     return CourseVm(
+      id: id,
       imagePath: imagePath,
       topic: name,
       title: name,
