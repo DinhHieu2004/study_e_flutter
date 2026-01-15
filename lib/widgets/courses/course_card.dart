@@ -12,6 +12,10 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final path = imagePath?.trim();
+    final isUrl = path != null &&
+        (path.startsWith('http://') || path.startsWith('https://'));
+
     return Container(
       width: 80,
       margin: const EdgeInsets.only(right: 12),
@@ -24,9 +28,27 @@ class CourseCard extends StatelessWidget {
               width: 80,
               height: 80,
               color: Colors.grey.shade300,
-              child: imagePath == null
+              child: (path == null || path.isEmpty)
                   ? const Icon(Icons.image, color: Colors.white70, size: 32)
-                  : Image.asset(imagePath!, fit: BoxFit.cover),
+                  : (isUrl
+                      ? Image.network(
+                          path,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.broken_image,
+                            color: Colors.white70,
+                            size: 32,
+                          ),
+                        )
+                      : Image.asset(
+                          path,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.broken_image,
+                            color: Colors.white70,
+                            size: 32,
+                          ),
+                        )),
             ),
           ),
           const SizedBox(height: 6),
