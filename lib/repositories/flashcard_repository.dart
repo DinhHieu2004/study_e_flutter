@@ -7,8 +7,8 @@ class FlashcardRepository {
 
   Future<List<Flashcard>> getByLesson(int lessonId) async {
     final response = await _dio.get(
-      '/studyE/api/vocabularies/review',
-      queryParameters: {'lessonId': lessonId},
+      '/studyE/api/vocabularies/review2',
+      queryParameters: {'topicId': lessonId},
     );
 
     if (response.statusCode == 200) {

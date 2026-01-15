@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../models/flash_card.dart';
-import 'package:audioplayers/audioplayers.dart';
+import '../../controllers/audio_service.dart';
 
 class FlashcardItem extends StatefulWidget {
   final Flashcard card;
@@ -13,9 +13,8 @@ class FlashcardItem extends StatefulWidget {
 
 class _FlashcardItemState extends State<FlashcardItem>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _anim;
-  late final AudioPlayer _player;
+  late final AnimationController _controller;
+  late final Animation<double> _anim;
 
   bool _front = true;
 
@@ -27,8 +26,6 @@ class _FlashcardItemState extends State<FlashcardItem>
       duration: const Duration(milliseconds: 300),
     );
     _anim = Tween(begin: 0.0, end: 1.0).animate(_controller);
-
-    _player = AudioPlayer();
   }
 
   void _flip() {
@@ -44,10 +41,13 @@ class _FlashcardItemState extends State<FlashcardItem>
         animation: _anim,
         builder: (_, __) {
           final angle = _anim.value * pi;
+          final scale = 1 - (sin(_anim.value * pi) * 0.15);
+
           return Transform(
             alignment: Alignment.center,
             transform: Matrix4.identity()
               ..setEntry(3, 2, 0.001)
+              ..scale(scale)
               ..rotateY(angle),
             child: angle < pi / 2
                 ? _frontFace()
@@ -70,11 +70,9 @@ class _FlashcardItemState extends State<FlashcardItem>
           widget.card.imageUrl,
           height: 120,
           fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return const Icon(Icons.image_not_supported, size: 80);
-          },
+          errorBuilder: (_, __, ___) =>
+              const Icon(Icons.image_not_supported, size: 80),
         ),
-
         const SizedBox(height: 12),
         Text(
           widget.card.word,
@@ -85,7 +83,7 @@ class _FlashcardItemState extends State<FlashcardItem>
         IconButton(
           icon: const Icon(Icons.volume_up),
           onPressed: () {
-            _player.play(UrlSource(widget.card.audioUrl));
+            AudioService.play(widget.card.audioUrl);
           },
         ),
       ],
@@ -116,30 +114,22 @@ class _FlashcardItemState extends State<FlashcardItem>
 
   Widget _card(Widget child) => AspectRatio(
     aspectRatio: 3 / 4,
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 420),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              blurRadius: 8,
-              color: Colors.black26,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: child,
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(blurRadius: 8, color: Colors.black26, offset: Offset(0, 4)),
+        ],
       ),
+      child: child,
     ),
   );
 
   @override
   void dispose() {
     _controller.dispose();
-    _player.dispose();
     super.dispose();
   }
 }

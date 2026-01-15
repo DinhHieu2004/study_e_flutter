@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/flash_card_provider.dart';
 import '../widgets/flash_card/flashcard_header.dart';
 import '../widgets/flash_card/flashcard_item.dart';
+import '../utils/app_colors.dart';
 
 class FlashcardPage extends ConsumerStatefulWidget {
   final int lessonId;
@@ -31,7 +32,7 @@ class _FlashcardPageState extends ConsumerState<FlashcardPage> {
     final state = ref.watch(flashcardProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8EEAC),
+      backgroundColor: AppColors.bgColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -62,7 +63,10 @@ class _FlashcardPageState extends ConsumerState<FlashcardPage> {
                                 ? 420
                                 : constraints.maxWidth * 0.85,
                           ),
-                          child: FlashcardItem(card: state.cards[i]),
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 24),
+                            child: FlashcardItem(card: state.cards[i]),
+                          ),
                         ),
                       ),
                     ),

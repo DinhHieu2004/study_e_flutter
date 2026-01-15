@@ -3,7 +3,7 @@ import 'admin_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repositories/auth_repository.dart';
 import '../network/firebase_auth_service.dart';
-import 'flashcard_page.dart';
+import 'watched_topic_page.dart';
 
 final firebaseAuthServiceProvider = Provider<FirebaseAuthService>(
   (ref) => FirebaseAuthService(),
@@ -114,17 +114,12 @@ class ProfilePage extends ConsumerWidget {
 
             _buildMenuItem(Icons.history, 'Lịch sử học tập'),
             _buildMenuItem(
-              Icons.collections_bookmark,
+              Icons.style,
               'Flash card từ vựng sở hữu',
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const FlashcardPage(
-                      lessonId: 1,
-                      title: 'Flash card của tôi',
-                    ),
-                  ),
+                  MaterialPageRoute(builder: (_) => const WatchedTopicPage()),
                 );
               },
             ),
