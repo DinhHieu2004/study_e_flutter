@@ -6,12 +6,19 @@ import '../widgets/lessons/lesson_card.dart';
 import '../widgets/videos/video_card.dart';
 import '../widgets/study_progress_circle.dart';
 import '../widgets/courses/course_card.dart';
-// import 'lesson_list_page.dart';
+import 'lessons_page.dart';
 import '../screens/camera_detector_screen.dart';
 import 'dictionary_page.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
+
+  void _openLessonsPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LessonsPage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,7 +37,7 @@ class HomePage extends ConsumerWidget {
               const SizedBox(height: 16),
               _buildPromoBanner(),
               const SizedBox(height: 24),
-              _buildCoursesSection(ref),
+              _buildCoursesSection(context, ref),
               const SizedBox(height: 24),
               _buildUserExperienceSection(),
               const SizedBox(height: 24),
@@ -187,7 +194,7 @@ class HomePage extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                     ),
                     onPressed: () {
-                      debugPrint("TODO: open lessons");
+                      _openLessonsPage(context);
                     },
                     child: const Text(
                       "Let's start",
@@ -288,7 +295,7 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCoursesSection(WidgetRef ref) {
+  Widget _buildCoursesSection(BuildContext context, WidgetRef ref) {
     final coursesState = ref.watch(homeCoursesProvider);
 
     return Column(
@@ -296,20 +303,30 @@ class HomePage extends ConsumerWidget {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text(
-              "Topics",
+          children: [
+            const Text(
+              "Lessons with topics",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
-            Row(
-              children: [
-                Text(
-                  "See all",
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            InkWell(
+              onTap: () => _openLessonsPage(context),
+              borderRadius: BorderRadius.circular(8),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                child: Row(
+                  children: [
+                    Text(
+                      "See all",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(Icons.arrow_forward, size: 14),
+                  ],
                 ),
-                SizedBox(width: 4),
-                Icon(Icons.arrow_forward, size: 14),
-              ],
+              ),
             ),
           ],
         ),
