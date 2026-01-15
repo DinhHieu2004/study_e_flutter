@@ -6,7 +6,7 @@ class CourseEmptyState extends StatelessWidget {
 
   const CourseEmptyState({
     super.key,
-    this.title = "No courses found",
+    this.title = "No topics found",
     this.subtitle = "Try another keyword or filter.",
   });
 

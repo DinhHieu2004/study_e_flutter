@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/courses_page.dart';
+import 'package:flutter_application_1/pages/lessons_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
 import 'pages/home_page.dart';
@@ -40,8 +40,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0066FF)),
         useMaterial3: false,
       ),
+
       scrollBehavior: AppScrollBehavior(),
-      home: AuthGate(),
+      // home: AuthGate(),
+      home: MainLayout(),
     );
   }
 }
@@ -73,7 +75,7 @@ class _MainLayoutState extends State<MainLayout> {
       case 0:
         return const HomePage();
       case 1:
-        return CoursesPage(onClose: () => _setTab(0));
+        return LessonsPage(onClose: () => _setTab(0));
       case 2:
         return const SearchPage();
       case 3:
@@ -146,7 +148,7 @@ class _MainLayoutState extends State<MainLayout> {
                 activeIcon: Icon(
                   dimAllTabs ? Icons.menu_book_outlined : Icons.menu_book,
                 ),
-                label: "Courses",
+                label: "Lessons",
               ),
               const BottomNavigationBarItem(
                 icon: Icon(Icons.search),
