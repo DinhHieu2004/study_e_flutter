@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../providers/lesson_detail_provider.dart';
-
 import 'package:flutter_application_1/widgets/lessons/meta_pill.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'exercise_page.dart';
 import 'flashcard_practice_page.dart';
+import 'package:just_audio/just_audio.dart';
+import '../models/vocabulary_response.dart';
 
 class LessonDetailPage extends ConsumerStatefulWidget {
   final String lessonId;
@@ -34,6 +34,8 @@ class LessonDetailPage extends ConsumerStatefulWidget {
 class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
   static const int _dialogueStep = 4;
   int _dialogueVisibleCount = _dialogueStep;
+  final AudioPlayer _wordPlayer = AudioPlayer();
+  int? _playingVocabId;
 
   bool _lessonFavorite = false;
   final Set<int> _starredVocabIds = {};
@@ -44,6 +46,12 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
     if (oldWidget.lessonId != widget.lessonId) {
       _dialogueVisibleCount = _dialogueStep;
     }
+  }
+
+  @override
+  void dispose() {
+    _wordPlayer.dispose();
+    super.dispose();
   }
 
   void _showPracticeOptions() {
@@ -876,11 +884,13 @@ class _LessonVideoCover extends StatefulWidget {
   State<_LessonVideoCover> createState() => _LessonVideoCoverState();
 }
 
-class _LessonVideoCoverState extends State<_LessonVideoCover> {
+class _LessonVideoCoverState extends State<_LessonVideoCover>
+    with AutomaticKeepAliveClientMixin {
   VideoPlayerController? _videoCtrl;
   ChewieController? _chewieCtrl;
   Object? _err;
-
+  @override
+  bool get wantKeepAlive => true;
   @override
   void initState() {
     super.initState();
@@ -919,7 +929,7 @@ class _LessonVideoCoverState extends State<_LessonVideoCover> {
         autoPlay: false,
         looping: false,
         showControls: true,
-        allowFullScreen: false, 
+        allowFullScreen: false,
         allowMuting: true,
         allowPlaybackSpeedChanging: false,
       );
@@ -939,6 +949,7 @@ class _LessonVideoCoverState extends State<_LessonVideoCover> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     if (_err != null) {
       return Center(child: Text("Không phát được media: $_err"));
     }
