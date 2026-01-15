@@ -4,14 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/lesson_detail_provider.dart';
 
 import 'package:flutter_application_1/widgets/lessons/meta_pill.dart';
-
+import 'package:chewie/chewie.dart';
+import 'package:video_player/video_player.dart';
 import 'exercise_page.dart';
 import 'flashcard_practice_page.dart';
 
 class LessonDetailPage extends ConsumerStatefulWidget {
   final String lessonId;
   final String title;
-  final String imageAsset; 
+  final String imageAsset;
   final String topic;
   final String level;
   final int estMinutes;
@@ -31,11 +32,19 @@ class LessonDetailPage extends ConsumerStatefulWidget {
 }
 
 class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
-  bool _dialogueExpanded = false;
-  bool _descExpanded = false;
+  static const int _dialogueStep = 4;
+  int _dialogueVisibleCount = _dialogueStep;
 
   bool _lessonFavorite = false;
   final Set<int> _starredVocabIds = {};
+
+  @override
+  void didUpdateWidget(covariant LessonDetailPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.lessonId != widget.lessonId) {
+      _dialogueVisibleCount = _dialogueStep;
+    }
+  }
 
   void _showPracticeOptions() {
     showModalBottomSheet(
@@ -151,14 +160,17 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: const Color(0xFFE9ECF2)),
+                              border: Border.all(
+                                color: const Color(0xFFE9ECF2),
+                              ),
                             ),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -171,7 +183,10 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                                               ),
                                             ),
                                           ),
-                                          if ((v.phonetic ?? "").toString().trim().isNotEmpty)
+                                          if ((v.phonetic ?? "")
+                                              .toString()
+                                              .trim()
+                                              .isNotEmpty)
                                             Text(
                                               v.phonetic,
                                               style: const TextStyle(
@@ -191,7 +206,10 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      if ((v.example ?? "").toString().trim().isNotEmpty) ...[
+                                      if ((v.example ?? "")
+                                          .toString()
+                                          .trim()
+                                          .isNotEmpty) ...[
                                         const SizedBox(height: 8),
                                         Text(
                                           v.example,
@@ -218,8 +236,12 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                                     });
                                   },
                                   icon: Icon(
-                                    starred ? Icons.star_rounded : Icons.star_border_rounded,
-                                    color: starred ? const Color(0xFFFFB300) : Colors.black54,
+                                    starred
+                                        ? Icons.star_rounded
+                                        : Icons.star_border_rounded,
+                                    color: starred
+                                        ? const Color(0xFFFFB300)
+                                        : Colors.black54,
                                   ),
                                 ),
                               ],
@@ -267,7 +289,9 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
             fit: BoxFit.cover,
             errorBuilder: (_, __, ___) => Container(
               color: Colors.grey.shade300,
-              child: const Center(child: Icon(Icons.image_not_supported_outlined)),
+              child: const Center(
+                child: Icon(Icons.image_not_supported_outlined),
+              ),
             ),
           )
         : Image.asset(
@@ -275,7 +299,9 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
             fit: BoxFit.cover,
             errorBuilder: (_, __, ___) => Container(
               color: Colors.grey.shade300,
-              child: const Center(child: Icon(Icons.image_not_supported_outlined)),
+              child: const Center(
+                child: Icon(Icons.image_not_supported_outlined),
+              ),
             ),
           );
   }
@@ -309,9 +335,15 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
         final dialogs = data.dialogs;
         final vocabs = data.vocabularies;
 
-        final pageTitle = (lesson.title.trim().isNotEmpty) ? lesson.title : widget.title;
-        final topicName = (lesson.topicName.trim().isNotEmpty) ? lesson.topicName : widget.topic;
-        final level = (lesson.level.trim().isNotEmpty) ? lesson.level : widget.level;
+        final pageTitle = (lesson.title.trim().isNotEmpty)
+            ? lesson.title
+            : widget.title;
+        final topicName = (lesson.topicName.trim().isNotEmpty)
+            ? lesson.topicName
+            : widget.topic;
+        final level = (lesson.level.trim().isNotEmpty)
+            ? lesson.level
+            : widget.level;
         final description = (lesson.description.trim().isNotEmpty)
             ? lesson.description
             : "No description.";
@@ -332,17 +364,20 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                 text: (d.content ?? "").toString(),
               ),
             )
-            .where((l) => l.speaker.trim().isNotEmpty || l.text.trim().isNotEmpty)
+            .where(
+              (l) => l.speaker.trim().isNotEmpty || l.text.trim().isNotEmpty,
+            )
             .toList();
 
         final speakerSide = _buildSpeakerSideMap(dialogue);
 
-        const previewDialogueCount = 4;
-        final showAllDialogue =
-            _dialogueExpanded || dialogue.length <= previewDialogueCount;
-        final showingDialogue = showAllDialogue
-            ? dialogue
-            : dialogue.take(previewDialogueCount).toList();
+        const previewDialogueCount = _dialogueStep;
+
+        final int shown = _dialogueVisibleCount.clamp(0, dialogue.length);
+        final showingDialogue = dialogue.take(shown).toList();
+
+        final bool isAllShown = shown >= dialogue.length;
+        final int remaining = dialogue.length - shown;
 
         final vocabPreview = vocabs
             .take(3)
@@ -380,33 +415,46 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      onPressed: () => setState(() => _lessonFavorite = !_lessonFavorite),
+                      onPressed: () =>
+                          setState(() => _lessonFavorite = !_lessonFavorite),
                       icon: Icon(
                         _lessonFavorite
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
-                        color: _lessonFavorite ? Colors.redAccent : Colors.black87,
+                        color: _lessonFavorite
+                            ? Colors.redAccent
+                            : Colors.black87,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
+                Builder(
+                  builder: (_) {
+                    final mediaUrl = (lesson.audioUrl ?? "").trim();
+                    final hasMp4 = mediaUrl.toLowerCase().endsWith(".mp4");
 
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: _buildCover(coverPath),
-                  ),
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: hasMp4
+                            ? _LessonVideoCover(url: mediaUrl)
+                            : _buildCover(coverPath),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 12),
-
                 SizedBox(
                   height: 36,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
-                      MetaPill(icon: Icons.local_offer_rounded, text: topicName),
+                      MetaPill(
+                        icon: Icons.local_offer_rounded,
+                        text: topicName,
+                      ),
                       const SizedBox(width: 8),
                       MetaPill(icon: Icons.bar_chart_rounded, text: level),
                       const SizedBox(width: 8),
@@ -441,7 +489,10 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                           SizedBox(width: 8),
                           Text(
                             "Estimated time",
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                         ],
                       ),
@@ -459,13 +510,14 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                       const SizedBox(height: 10),
                       const Text(
                         "Description",
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         description,
-                        maxLines: _descExpanded ? null : 5,
-                        overflow: _descExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 14,
                           color: textGrey,
@@ -473,17 +525,6 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      if (description.trim().length > 90)
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: TextButton(
-                            onPressed: () => setState(() => _descExpanded = !_descExpanded),
-                            child: Text(
-                              _descExpanded ? "Less..." : "More...",
-                              style: const TextStyle(fontWeight: FontWeight.w900),
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                 ),
@@ -499,7 +540,10 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                           SizedBox(width: 8),
                           Text(
                             "Dialogue",
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                         ],
                       ),
@@ -517,7 +561,10 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                       if (showingDialogue.isEmpty)
                         const Text(
                           "No dialogue yet.",
-                          style: TextStyle(color: textGrey, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                            color: textGrey,
+                            fontWeight: FontWeight.w700,
+                          ),
                         )
                       else
                         ...showingDialogue.map(
@@ -532,11 +579,26 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: TextButton(
-                            onPressed: () =>
-                                setState(() => _dialogueExpanded = !_dialogueExpanded),
+                            onPressed: () {
+                              setState(() {
+                                if (isAllShown) {
+                                  _dialogueVisibleCount = _dialogueStep;
+                                } else {
+                                  _dialogueVisibleCount =
+                                      (shown + _dialogueStep).clamp(
+                                        0,
+                                        dialogue.length,
+                                      );
+                                }
+                              });
+                            },
                             child: Text(
-                              _dialogueExpanded ? "Less..." : "More...",
-                              style: const TextStyle(fontWeight: FontWeight.w900),
+                              isAllShown
+                                  ? "Less..."
+                                  : "More... (+${remaining >= _dialogueStep ? _dialogueStep : remaining})",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
                           ),
                         ),
@@ -609,7 +671,10 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                     ),
                     child: const Text(
                       "Practice",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ),
@@ -701,7 +766,9 @@ class _DialogueRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
-        mainAxisAlignment: isRight ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isRight
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [bubble],
       ),
@@ -716,12 +783,9 @@ class _DialogueRow extends StatelessWidget {
     required TextStyle normalStyle,
     required TextStyle highlightStyle,
   }) {
-    final cleaned = terms
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toSet()
-        .toList()
-      ..sort((a, b) => b.length.compareTo(a.length));
+    final cleaned =
+        terms.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet().toList()
+          ..sort((a, b) => b.length.compareTo(a.length));
 
     final result = <TextSpan>[
       TextSpan(text: speakerPrefix, style: speakerStyle),
@@ -738,9 +802,13 @@ class _DialogueRow extends StatelessWidget {
     int last = 0;
     for (final m in reg.allMatches(text)) {
       if (m.start > last) {
-        result.add(TextSpan(text: text.substring(last, m.start), style: normalStyle));
+        result.add(
+          TextSpan(text: text.substring(last, m.start), style: normalStyle),
+        );
       }
-      result.add(TextSpan(text: text.substring(m.start, m.end), style: highlightStyle));
+      result.add(
+        TextSpan(text: text.substring(m.start, m.end), style: highlightStyle),
+      );
       last = m.end;
     }
     if (last < text.length) {
@@ -780,9 +848,15 @@ class _OptionTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w900),
+                  ),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(color: Color(0xFF8A8A8A))),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(color: Color(0xFF8A8A8A)),
+                  ),
                 ],
               ),
             ),
@@ -791,5 +865,86 @@ class _OptionTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _LessonVideoCover extends StatefulWidget {
+  final String url;
+  const _LessonVideoCover({required this.url});
+
+  @override
+  State<_LessonVideoCover> createState() => _LessonVideoCoverState();
+}
+
+class _LessonVideoCoverState extends State<_LessonVideoCover> {
+  VideoPlayerController? _videoCtrl;
+  ChewieController? _chewieCtrl;
+  Object? _err;
+
+  @override
+  void initState() {
+    super.initState();
+    _setup();
+  }
+
+  @override
+  void didUpdateWidget(covariant _LessonVideoCover oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.url != widget.url) _setup();
+  }
+
+  Future<void> _setup() async {
+    _err = null;
+
+    try {
+      await _chewieCtrl?.pause();
+    } catch (_) {}
+
+    _chewieCtrl?.dispose();
+    _chewieCtrl = null;
+
+    await _videoCtrl?.dispose();
+    _videoCtrl = null;
+
+    try {
+      final vc = VideoPlayerController.networkUrl(Uri.parse(widget.url.trim()));
+      _videoCtrl = vc;
+
+      await vc.initialize();
+      vc.setLooping(false);
+      vc.setVolume(1.0);
+
+      _chewieCtrl = ChewieController(
+        videoPlayerController: vc,
+        autoPlay: false,
+        looping: false,
+        showControls: true,
+        allowFullScreen: false, 
+        allowMuting: true,
+        allowPlaybackSpeedChanging: false,
+      );
+
+      if (mounted) setState(() {});
+    } catch (e) {
+      if (mounted) setState(() => _err = e);
+    }
+  }
+
+  @override
+  void dispose() {
+    _chewieCtrl?.dispose();
+    _videoCtrl?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_err != null) {
+      return Center(child: Text("Không phát được media: $_err"));
+    }
+    if (_chewieCtrl == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Chewie(controller: _chewieCtrl!);
   }
 }
