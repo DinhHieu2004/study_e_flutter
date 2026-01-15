@@ -6,6 +6,7 @@ class LessonDetailResponse {
   final String? imageUrl;
   final int topicId;
   final String topicName;
+  final String? audioUrl;
 
   LessonDetailResponse({
     required this.id,
@@ -15,6 +16,7 @@ class LessonDetailResponse {
     required this.topicId,
     required this.topicName,
     this.imageUrl,
+    this.audioUrl,
   });
 
   factory LessonDetailResponse.fromJson(Map<String, dynamic> json) {
@@ -24,8 +26,10 @@ class LessonDetailResponse {
       description: json['description'] as String? ?? '',
       level: json['level'] as String? ?? '',
       imageUrl: json['imageUrl'] as String?,
+      audioUrl: (json['audioUrl'] as String?) ?? (json['audio_url'] as String?), 
       topicId: (json['topicId'] as num?)?.toInt() ?? 0,
       topicName: json['topicName'] as String? ?? '',
     );
   }
 }
+
