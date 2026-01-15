@@ -8,6 +8,17 @@ import 'pages/exercise_page.dart';
 import 'pages/profile_page.dart';
 import '../../widgets/auth/auth_gate.dart';
 
+import 'dart:ui';
+
+class AppScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+  };
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -29,6 +40,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0066FF)),
         useMaterial3: false,
       ),
+
+      scrollBehavior: AppScrollBehavior(),
       // home: AuthGate(),
       home: MainLayout(),
     );
