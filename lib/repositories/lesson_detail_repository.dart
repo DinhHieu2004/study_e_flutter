@@ -14,6 +14,13 @@ class LessonDetailRepository {
     return LessonDetailResponse.fromJson(res.data as Map<String, dynamic>);
   }
 
+  Future<void> markLessonDone(String lessonId) async {
+    await _dio.post(
+      '$_prefix/lessions/done',
+      queryParameters: {'lessonId': lessonId},
+    );
+  }
+
   Future<List<DialogResponse>> getDialogs(String lessonId) async {
     final res = await _dio.get('$_prefix/dialogs/$lessonId');
     final list = (res.data as List)

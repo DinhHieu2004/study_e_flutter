@@ -8,6 +8,7 @@ import 'exercise_page.dart';
 import 'flashcard_practice_page.dart';
 import 'package:just_audio/just_audio.dart';
 import '../models/vocabulary_response.dart';
+import '../providers/lessons_provider.dart';
 
 class LessonDetailPage extends ConsumerStatefulWidget {
   final String lessonId;
@@ -16,6 +17,7 @@ class LessonDetailPage extends ConsumerStatefulWidget {
   final String topic;
   final String level;
   final int estMinutes;
+  final bool initialIsDone;
 
   const LessonDetailPage({
     super.key,
@@ -25,6 +27,7 @@ class LessonDetailPage extends ConsumerStatefulWidget {
     required this.topic,
     required this.level,
     required this.estMinutes,
+    this.initialIsDone = false,
   });
 
   @override
@@ -37,8 +40,50 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
   final AudioPlayer _wordPlayer = AudioPlayer();
   int? _playingVocabId;
 
+  bool _markingDone = false;
+  bool _localDone = false;
+  bool _doneChanged = false;
+
   bool _lessonFavorite = false;
   final Set<int> _starredVocabIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _localDone = widget.initialIsDone;
+  }
+
+  Future<void> _markDone() async {
+    if (_markingDone) return;
+
+    setState(() => _markingDone = true);
+
+    try {
+      final repo = ref.read(lessonDetailRepositoryProvider);
+      await repo.markLessonDone(widget.lessonId);
+
+      setState(() {
+        _localDone = true;
+        _doneChanged = true; 
+      });
+
+      ref.invalidate(lessonsProvider);
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Đã đánh dấu hoàn thành")));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Lỗi đánh dấu hoàn thành: $e")));
+      }
+    } finally {
+      if (mounted) setState(() => _markingDone = false);
+    }
+  }
 
   @override
   void didUpdateWidget(covariant LessonDetailPage oldWidget) {
@@ -403,7 +448,7 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                   children: [
                     InkWell(
                       borderRadius: BorderRadius.circular(20),
-                      onTap: () => Navigator.pop(context),
+                      onTap: () => Navigator.pop(context, _doneChanged),
                       child: const Padding(
                         padding: EdgeInsets.all(6),
                         child: Icon(Icons.arrow_back, size: 20),
@@ -666,25 +711,71 @@ class _LessonDetailPageState extends ConsumerState<LessonDetailPage> {
                 ),
                 const SizedBox(height: 16),
 
-                SizedBox(
-                  height: 52,
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _showPracticeOptions,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 52,
+                        child: OutlinedButton.icon(
+                          onPressed: (_localDone || _markingDone)
+                              ? null
+                              : _markDone,
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: (_localDone
+                                  ? const Color(0xFF22C55E)
+                                  : const Color(0xFF0066FF)),
+                              width: 1.6,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                          ),
+                          icon: Icon(
+                            _localDone
+                                ? Icons.check_circle
+                                : Icons.check_rounded,
+                            color: _localDone
+                                ? const Color(0xFF22C55E)
+                                : const Color(0xFF0066FF),
+                          ),
+                          label: Text(
+                            _localDone
+                                ? "Đã hoàn thành"
+                                : (_markingDone ? "Đang lưu..." : "Hoàn thành"),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: _localDone
+                                  ? const Color(0xFF22C55E)
+                                  : const Color(0xFF0066FF),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                    child: const Text(
-                      "Practice",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: SizedBox(
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: _showPracticeOptions,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0066FF),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                          ),
+                          child: const Text(
+                            "Hành động",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),

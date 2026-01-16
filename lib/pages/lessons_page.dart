@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/lesson_detail_page.dart';
+import 'package:flutter_application_1/widgets/courses/course_list_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/course_vm.dart';
 import '../providers/lessons_provider.dart';
@@ -127,21 +128,25 @@ class _LessonsPageState extends ConsumerState<LessonsPage> {
                   final courses = _filterCourses(all);
                   return CourseListView(
                     courses: courses,
-                    onCourseTap: (c) {
-                      Navigator.push(
+                    onCourseTap: (c) async {
+                      final changed = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => LessonDetailPage(
                             lessonId: c.id.toString(),
                             title: c.title,
-                            imageAsset: c
-                                .imagePath, 
+                            imageAsset: c.imagePath,
                             topic: c.topic,
                             level: c.level,
-                            estMinutes: 0, 
+                            estMinutes: 0,
+                            initialIsDone: c.status == CourseCardStatus.done,
                           ),
                         ),
                       );
+
+                      if (changed == true) {
+                        ref.invalidate(lessonsProvider);
+                      }
                     },
                   );
                 },
