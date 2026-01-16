@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum CourseCardStatus {
-  normal,
-  activePrimary,
-  activeSecondary,
-}
+enum CourseCardStatus { normal, activePrimary, activeSecondary, done }
 
 class CourseListItem extends StatelessWidget {
   final String imagePath;
@@ -52,6 +48,11 @@ class CourseListItem extends StatelessWidget {
         const Color(0xFFF2F3F5),
         Colors.black87,
       ),
+      CourseCardStatus.done => (
+        const Color(0xFF22C55E), 
+        const Color(0xFFE9FBEF), 
+        const Color(0xFF16A34A), 
+      ),
     };
 
     final path = imagePath.trim();
@@ -75,7 +76,11 @@ class CourseListItem extends StatelessWidget {
           width: 80,
           height: 65,
           color: Colors.grey.shade300,
-          child: const Icon(Icons.broken_image, color: Colors.white70, size: 28),
+          child: const Icon(
+            Icons.broken_image,
+            color: Colors.white70,
+            size: 28,
+          ),
         ),
       );
     } else {
@@ -88,7 +93,11 @@ class CourseListItem extends StatelessWidget {
           width: 80,
           height: 65,
           color: Colors.grey.shade300,
-          child: const Icon(Icons.broken_image, color: Colors.white70, size: 28),
+          child: const Icon(
+            Icons.broken_image,
+            color: Colors.white70,
+            size: 28,
+          ),
         ),
       );
     }
