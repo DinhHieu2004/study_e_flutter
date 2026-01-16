@@ -1,5 +1,6 @@
 import 'course_vm.dart';
-import '../widgets/courses/course_list_item.dart'; 
+import '../widgets/courses/course_list_item.dart';
+import 'package:flutter/material.dart';
 
 class LessonResponseModel {
   final int id;
@@ -9,6 +10,7 @@ class LessonResponseModel {
   final String? imageUrl;
   final int topicId;
   final String topicName;
+  final String? progressStatus;
 
   LessonResponseModel({
     required this.id,
@@ -18,6 +20,7 @@ class LessonResponseModel {
     required this.topicId,
     required this.topicName,
     this.imageUrl,
+    this.progressStatus,
   });
 
   factory LessonResponseModel.fromJson(Map<String, dynamic> json) {
@@ -29,19 +32,23 @@ class LessonResponseModel {
       imageUrl: json['imageUrl'] as String?,
       topicId: (json['topicId'] as num?)?.toInt() ?? 0,
       topicName: json['topicName'] as String? ?? '',
+      progressStatus: json['progressStatus'] as String?,
     );
   }
 
   CourseVm toCourseVm() {
+    final isDone = progressStatus == 'DONE';
+
     return CourseVm(
       id: id,
-      imagePath: imageUrl ?? '',       
+      imagePath: imageUrl ?? '',
       topic: topicName,
       title: title,
       description: description,
       level: level,
-      lessonCount: 0,                  
-      status: CourseCardStatus.normal,  
+      lessonCount: 0,
+      status: isDone ? CourseCardStatus.done : CourseCardStatus.normal,
+      actionIcon: isDone ? Icons.check_rounded : Icons.chevron_right,
     );
   }
 }
