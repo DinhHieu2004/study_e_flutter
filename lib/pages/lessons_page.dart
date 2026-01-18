@@ -4,7 +4,6 @@ import 'package:flutter_application_1/widgets/courses/course_list_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/course_vm.dart';
 import '../providers/lessons_provider.dart';
-import '../widgets/courses/course_card.dart';
 import '../widgets/courses/course_list_view.dart';
 import '../widgets/courses/courses_filter_chips.dart';
 import '../widgets/courses/courses_search_bar.dart';
@@ -33,6 +32,31 @@ class _LessonsPageState extends ConsumerState<LessonsPage> {
   void dispose() {
     _searchCtl.dispose();
     super.dispose();
+  }
+
+  void _showPremiumLockedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Nội dung Premium"),
+        content: const Text(
+          "Bài học này cần mở khóa Premium mới có thể học.\n\n"
+          "Bạn muốn nâng cấp ngay không?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Đóng"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text("Nâng cấp"),
+          ),
+        ],
+      ),
+    );
   }
 
   List<CourseVm> _filterCourses(List<CourseVm> all) {
@@ -64,7 +88,6 @@ class _LessonsPageState extends ConsumerState<LessonsPage> {
   Widget build(BuildContext context) {
     final topicsAsync = ref.watch(topicsProvider);
     final selectedTopicId = ref.watch(selectedTopicIdProvider);
-
     final lessonsAsync = ref.watch(lessonsProvider);
 
     return Scaffold(
@@ -81,10 +104,7 @@ class _LessonsPageState extends ConsumerState<LessonsPage> {
             topicsAsync.when(
               loading: () => const SizedBox.shrink(),
               error: (e, _) => Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text("Load topics error: $e"),
               ),
               data: (topics) {
@@ -126,9 +146,15 @@ class _LessonsPageState extends ConsumerState<LessonsPage> {
                 error: (e, _) => Center(child: Text("Load lessons error: $e")),
                 data: (all) {
                   final courses = _filterCourses(all);
+
                   return CourseListView(
                     courses: courses,
                     onCourseTap: (c) async {
+                      if (c.status == CourseCardStatus.premium) {
+                        _showPremiumLockedDialog(context);
+                        return;
+                      }
+
                       final changed = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -143,7 +169,6 @@ class _LessonsPageState extends ConsumerState<LessonsPage> {
                           ),
                         ),
                       );
-
                       if (changed == true) {
                         ref.invalidate(lessonsProvider);
                       }

@@ -11,6 +11,7 @@ class LessonResponseModel {
   final int topicId;
   final String topicName;
   final String? progressStatus;
+  final bool premium;
 
   LessonResponseModel({
     required this.id,
@@ -21,6 +22,7 @@ class LessonResponseModel {
     required this.topicName,
     this.imageUrl,
     this.progressStatus,
+    this.premium = false,
   });
 
   factory LessonResponseModel.fromJson(Map<String, dynamic> json) {
@@ -33,11 +35,19 @@ class LessonResponseModel {
       topicId: (json['topicId'] as num?)?.toInt() ?? 0,
       topicName: json['topicName'] as String? ?? '',
       progressStatus: json['progressStatus'] as String?,
+      premium: (json['premium'] == true) || (json['isPremium'] == true),
     );
   }
 
   CourseVm toCourseVm() {
     final isDone = progressStatus == 'DONE';
+    final status = isDone
+        ? CourseCardStatus.done
+        : (premium ? CourseCardStatus.premium : CourseCardStatus.normal);
+
+    final icon = isDone
+        ? Icons.check_rounded
+        : (premium ? Icons.lock_rounded : Icons.chevron_right);
 
     return CourseVm(
       id: id,
@@ -47,8 +57,8 @@ class LessonResponseModel {
       description: description,
       level: level,
       lessonCount: 0,
-      status: isDone ? CourseCardStatus.done : CourseCardStatus.normal,
-      actionIcon: isDone ? Icons.check_rounded : Icons.chevron_right,
+      status: status,
+      actionIcon: icon,
     );
   }
 }
