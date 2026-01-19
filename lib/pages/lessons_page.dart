@@ -3,6 +3,7 @@ import 'package:flutter_application_1/pages/lesson_detail_page.dart';
 import 'package:flutter_application_1/widgets/courses/course_list_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/course_vm.dart';
+import 'premium_page.dart';
 import '../providers/lessons_provider.dart';
 import '../widgets/courses/course_list_view.dart';
 import '../widgets/courses/courses_filter_chips.dart';
@@ -51,6 +52,10 @@ class _LessonsPageState extends ConsumerState<LessonsPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PremiumPage()),
+              );
             },
             child: const Text("Nâng cấp"),
           ),
@@ -104,7 +109,10 @@ class _LessonsPageState extends ConsumerState<LessonsPage> {
             topicsAsync.when(
               loading: () => const SizedBox.shrink(),
               error: (e, _) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Text("Load topics error: $e"),
               ),
               data: (topics) {
