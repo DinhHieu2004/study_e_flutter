@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/vocabulary_response.dart';
 import '../../controllers/audio_service.dart';
+import '../../repositories/vocabulary_admin_repository.dart';
 
 enum QuestionType { choice, fill }
 
@@ -15,6 +16,7 @@ class VocabularyEditBottomSheet extends StatefulWidget {
 }
 
 class _VocabularyEditBottomSheetState extends State<VocabularyEditBottomSheet> {
+  // ===== Vocabulary fields =====
   late TextEditingController topicIdCtrl;
   late TextEditingController wordCtrl;
   late TextEditingController meaningCtrl;
@@ -24,16 +26,22 @@ class _VocabularyEditBottomSheetState extends State<VocabularyEditBottomSheet> {
   late TextEditingController imageUrlCtrl;
   late TextEditingController audioUrlCtrl;
 
+  // ===== Question =====
   QuestionType questionType = QuestionType.choice;
 
+  // Choice question
+  final choiceQuestionCtrl = TextEditingController();
   final optionACtrl = TextEditingController();
   final optionBCtrl = TextEditingController();
   final optionCCtrl = TextEditingController();
   final optionDCtrl = TextEditingController();
   String correctOption = 'A';
 
+  // Fill question
   final fillQuestionCtrl = TextEditingController();
   final fillAnswerCtrl = TextEditingController();
+
+  final _repo = VocabularyAdminRepository();
 
   @override
   void initState() {
@@ -61,10 +69,12 @@ class _VocabularyEditBottomSheetState extends State<VocabularyEditBottomSheet> {
     imageUrlCtrl.dispose();
     audioUrlCtrl.dispose();
 
+    choiceQuestionCtrl.dispose();
     optionACtrl.dispose();
     optionBCtrl.dispose();
     optionCCtrl.dispose();
     optionDCtrl.dispose();
+
     fillQuestionCtrl.dispose();
     fillAnswerCtrl.dispose();
 
@@ -101,7 +111,6 @@ class _VocabularyEditBottomSheetState extends State<VocabularyEditBottomSheet> {
                 _input('Audio URL', audioUrlCtrl),
 
                 if (imageUrlCtrl.text.isNotEmpty) _image(imageUrlCtrl.text),
-
                 if (audioUrlCtrl.text.isNotEmpty) _audio(audioUrlCtrl.text),
 
                 const SizedBox(height: 20),
@@ -120,6 +129,8 @@ class _VocabularyEditBottomSheetState extends State<VocabularyEditBottomSheet> {
       },
     );
   }
+
+  // ===== Widgets =====
 
   Widget _header() {
     return Row(
@@ -147,6 +158,7 @@ class _VocabularyEditBottomSheetState extends State<VocabularyEditBottomSheet> {
       child: TextField(
         controller: ctrl,
         keyboardType: keyboard,
+        maxLines: keyboard == TextInputType.multiline ? null : 1,
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -167,8 +179,7 @@ class _VocabularyEditBottomSheetState extends State<VocabularyEditBottomSheet> {
           child: Image.network(
             url,
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) =>
-                const Icon(Icons.broken_image, size: 28),
+            errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
           ),
         ),
       ),
@@ -198,7 +209,6 @@ class _VocabularyEditBottomSheetState extends State<VocabularyEditBottomSheet> {
 
   Widget _typeBtn(String text, QuestionType type) {
     final active = questionType == type;
-
     return Expanded(
       child: InkWell(
         onTap: () => setState(() => questionType = type),
@@ -226,6 +236,11 @@ class _VocabularyEditBottomSheetState extends State<VocabularyEditBottomSheet> {
   Widget _choiceForm() {
     return Column(
       children: [
+        _input(
+          'Câu hỏi',
+          choiceQuestionCtrl,
+          keyboard: TextInputType.multiline,
+        ),
         _input('Đáp án A', optionACtrl),
         _input('Đáp án B', optionBCtrl),
         _input('Đáp án C', optionCCtrl),
@@ -251,7 +266,11 @@ class _VocabularyEditBottomSheetState extends State<VocabularyEditBottomSheet> {
   Widget _fillForm() {
     return Column(
       children: [
-        _input('Câu hỏi (VD: I ___ an apple)', fillQuestionCtrl),
+        _input(
+          'Câu hỏi (VD: I ___ an apple)',
+          fillQuestionCtrl,
+          keyboard: TextInputType.multiline,
+        ),
         _input('Từ cần điền', fillAnswerCtrl),
       ],
     );
@@ -261,40 +280,64 @@ class _VocabularyEditBottomSheetState extends State<VocabularyEditBottomSheet> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          final payload = {
-            'topicId': int.tryParse(topicIdCtrl.text),
-            'word': wordCtrl.text,
-            'meaning': meaningCtrl.text,
-            'phonetic': phoneticCtrl.text,
-            'example': exampleCtrl.text,
-            'exampleMeaning': meaningECtrl.text,
-            'imageUrl': imageUrlCtrl.text,
-            'audioUrl': audioUrlCtrl.text,
-            'questionType': questionType.name,
-            'choice': questionType == QuestionType.choice
-                ? {
-                    'A': optionACtrl.text,
-                    'B': optionBCtrl.text,
-                    'C': optionCCtrl.text,
-                    'D': optionDCtrl.text,
-                    'correct': correctOption,
-                  }
-                : null,
-            'fill': questionType == QuestionType.fill
-                ? {
-                    'question': fillQuestionCtrl.text,
-                    'answer': fillAnswerCtrl.text,
-                  }
-                : null,
-          };
-
-          debugPrint(payload.toString());
-
-          Navigator.pop(context);
-        },
+        onPressed: _submit,
         child: const Text('Lưu thay đổi'),
       ),
     );
+  }
+
+  // ===== Submit =====
+
+  Future<void> _submit() async {
+    final payload = {
+      'topicId': int.tryParse(topicIdCtrl.text),
+      'word': wordCtrl.text.trim(),
+      'meaning': meaningCtrl.text.trim(),
+      'phonetic': phoneticCtrl.text.trim(),
+      'example': exampleCtrl.text.trim(),
+      'exampleMeaning': meaningECtrl.text.trim(),
+      'imageUrl': imageUrlCtrl.text.trim(),
+      'audioUrl': audioUrlCtrl.text.trim(),
+
+      'questionType': questionType.name,
+
+      'choice': questionType == QuestionType.choice
+          ? {
+              'question': choiceQuestionCtrl.text.trim(),
+              'A': optionACtrl.text.trim(),
+              'B': optionBCtrl.text.trim(),
+              'C': optionCCtrl.text.trim(),
+              'D': optionDCtrl.text.trim(),
+              'correct': correctOption,
+            }
+          : null,
+
+      'fill': questionType == QuestionType.fill
+          ? {
+              'question': fillQuestionCtrl.text.trim(),
+              'answer': fillAnswerCtrl.text.trim(),
+            }
+          : null,
+    };
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      await _repo.updateVocabulary(widget.vocabulary.id, payload);
+      if (!mounted) return;
+
+      Navigator.of(context, rootNavigator: true).pop();
+
+      Navigator.pop(context, true);
+    } catch (_) {
+      Navigator.of(context, rootNavigator: true).pop();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Cập nhật thất bại')));
+    }
   }
 }

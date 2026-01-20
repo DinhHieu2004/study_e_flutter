@@ -30,6 +30,10 @@ class VocabularyAdminRepository {
     }
   }
 
+  Future<void> updateVocabulary(int id, Map<String, dynamic> payload) async {
+    await _dio.put('/studyE/api/vocabularies/$id', data: payload);
+  }
+
   Future<List<VocabularyResponse>> previewImport(File file) async {
     final formData = FormData.fromMap({
       'file': await MultipartFile.fromFile(

@@ -225,13 +225,19 @@ class _VocabularyManagementPageState
               final v = state.vocabularies[i];
 
               return GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
+                onTap: () async {
+                  final success = await showModalBottomSheet<bool>(
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
                     builder: (_) => VocabularyEditBottomSheet(vocabulary: v),
                   );
+
+                  if (success == true) {
+                    ref
+                        .read(vocabularyAdminProvider.notifier)
+                        .loadVocabularies();
+                  }
                 },
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 12),
