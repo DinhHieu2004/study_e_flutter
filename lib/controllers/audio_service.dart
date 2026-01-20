@@ -1,11 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-import 'package:web/web.dart' as web;
-
 class AudioService {
   static final AudioPlayer _mobilePlayer = AudioPlayer();
-  static web.HTMLAudioElement? _webAudio;
 
   static String _fixUrl(String url) {
     if (url.startsWith('//')) {
@@ -18,15 +15,9 @@ class AudioService {
     final fixedUrl = _fixUrl(url);
 
     if (kIsWeb) {
-      try {
-        _webAudio?.pause();
-        _webAudio = web.HTMLAudioElement()
-          ..src = fixedUrl
-          ..autoplay = true
-          ..load();
-      } catch (e) {
-        debugPrint('Web audio error: $e');
-      }
+      // Tạm thời bỏ qua web, chỉ log warning
+      debugPrint('Web audio not supported in this build');
+      return;
     } else {
       // ===== MOBILE =====
       try {
@@ -40,17 +31,14 @@ class AudioService {
 
   static Future<void> stop() async {
     if (kIsWeb) {
-      _webAudio?.pause();
+      debugPrint('Web audio not supported');
     } else {
       await _mobilePlayer.stop();
     }
   }
 
   static void dispose() {
-    if (kIsWeb) {
-      _webAudio?.pause();
-      _webAudio = null;
-    } else {
+    if (!kIsWeb) {
       _mobilePlayer.dispose();
     }
   }
