@@ -30,6 +30,7 @@ class DioClient {
                 final token = prefs.getString('jwt_token');
 
                 if (token != null && token.isNotEmpty) {
+                  print('Attaching token to request: $token');
                   options.headers['Authorization'] = 'Bearer $token';
                 }
               }

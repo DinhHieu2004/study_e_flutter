@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/models/user_response.dart';
 import 'question_mgt_admin_page.dart';
 import 'lesson_mgt_admin_page.dart';
+import 'user_mgt_admin_page.dart';
 
 class ManagementPage extends StatelessWidget {
   const ManagementPage({super.key});
@@ -57,7 +59,14 @@ class ManagementPage extends StatelessWidget {
                     'Quản lý\nUser',
                     Icons.people_alt_outlined,
                     Colors.blue,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const UserManagementPage(),
+                        ),
+                      );
+                    },
                   ),
                   _buildAdminCard(
                     context,
