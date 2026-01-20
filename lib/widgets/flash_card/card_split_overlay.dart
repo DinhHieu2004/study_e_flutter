@@ -176,7 +176,7 @@ class _CardSplitOverlayState extends ConsumerState<_CardSplitOverlay> {
                                   ),
                                 );
                               } else {
-                                Navigator.of(context).pop(false);
+                                Navigator.of(context).pop(null);
                               }
                             },
                       child: Row(
@@ -230,7 +230,7 @@ class _CloseButton extends StatelessWidget {
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
-        onTap: () => Navigator.of(context).pop(false),
+        onTap: () => Navigator.of(context).pop(null),
         child: const Padding(
           padding: EdgeInsets.all(10),
           child: Icon(Icons.close, size: 22, color: Colors.white),
