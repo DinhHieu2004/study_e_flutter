@@ -116,7 +116,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     }
 
     final success = await ref
-        .read(authProvider)
+        .read(authProvider.notifier)
         .register(fullName: fullName, email: email, password: password);
 
     if (!mounted) return;

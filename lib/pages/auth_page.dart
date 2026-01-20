@@ -28,7 +28,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = ref.watch(authProvider);
+    final authState = ref.watch(authProvider);
+    final auth = ref.read(authProvider.notifier);
 
     final width = MediaQuery.of(context).size.width;
     final double contentWidth = width > 600 ? 420 : width;
@@ -71,8 +72,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                             ? LoginForm(
                                 emailCtl: emailCtl,
                                 passwordCtl: passCtl,
-                                isLoading: auth.isLoading,
-                                error: auth.error,
+                                isLoading: authState.isLoading,
+                                error: authState.error,
                                 onLogin: () {
                                   auth.login(
                                     emailCtl.text.trim(),

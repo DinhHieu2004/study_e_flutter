@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/providers/home_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/app_colors.dart';
 import '../widgets/lessons/lesson_card.dart';
 import '../widgets/videos/video_card.dart';
 import '../widgets/study_progress_circle.dart';
 import '../widgets/courses/course_card.dart';
-import 'lesson_list_page.dart';
+import 'lessons_page.dart';
 import '../screens/camera_detector_screen.dart';
-class HomePage extends StatelessWidget {
+import 'dictionary_page.dart';
+
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
+  void _openLessonsPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LessonsPage()),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       body: SafeArea(
@@ -20,12 +31,13 @@ class HomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(context),
+              _buildDictionarySearch(context),
               const SizedBox(height: 24),
               _buildStudyCard(context),
               const SizedBox(height: 16),
               _buildPromoBanner(),
               const SizedBox(height: 24),
-              _buildCoursesSection(),
+              _buildCoursesSection(context, ref),
               const SizedBox(height: 24),
               _buildUserExperienceSection(),
               const SizedBox(height: 24),
@@ -71,17 +83,13 @@ class HomePage extends StatelessWidget {
               child: Container(
                 width: 40,
                 height: 40,
-                margin: const EdgeInsets.only(
-                  right: 12,
-                ), 
+                margin: const EdgeInsets.only(right: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withOpacity(
-                    0.1,
-                  ), 
+                  color: AppColors.primaryBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
-                  Icons.qr_code_scanner, 
+                  Icons.qr_code_scanner,
                   color: AppColors.primaryBlue,
                   size: 24,
                 ),
@@ -104,6 +112,43 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildDictionarySearch(BuildContext context) {
+    final controller = TextEditingController();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: "Search dictionary...",
+          border: InputBorder.none,
+          icon: const Icon(Icons.search, color: AppColors.primaryBlue),
+        ),
+        onSubmitted: (word) {
+          final trimmed = word.trim();
+          if (trimmed.isEmpty) return;
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => DictionaryPage(word: trimmed)),
+          );
+        },
+      ),
     );
   }
 
@@ -149,19 +194,7 @@ class HomePage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                     ),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const LessonListPage(
-                            courseTitle: "English for Beginner",
-                            courseLevel: "A1-A2",
-                            courseImageAsset: "assets/imgs/music.png",
-                            totalLessons: 12,
-                            doneLessons: 0,
-                            estMinutes: 90,
-                          ),
-                        ),
-                      );
+                      _openLessonsPage(context);
                     },
                     child: const Text(
                       "Let's start",
@@ -262,55 +295,71 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildCoursesSection() {
+  Widget _buildCoursesSection(BuildContext context, WidgetRef ref) {
+    final coursesState = ref.watch(homeCoursesProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text(
-              "Courses",
+          children: [
+            const Text(
+              "Lessons with topics",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
-            Row(
-              children: [
-                Text(
-                  "See all",
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            InkWell(
+              onTap: () => _openLessonsPage(context),
+              borderRadius: BorderRadius.circular(8),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                child: Row(
+                  children: [
+                    Text(
+                      "See all",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(Icons.arrow_forward, size: 14),
+                  ],
                 ),
-                SizedBox(width: 4),
-                Icon(Icons.arrow_forward, size: 14),
-              ],
+              ),
             ),
           ],
         ),
-
         const SizedBox(height: 12),
 
-        SizedBox(
-          height: 110,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: const [
-              CourseCard(title: "Travel", imagePath: "assets/imgs/travel.png"),
-              CourseCard(
-                title: "Hangout",
-                imagePath: "assets/imgs/hangout.png",
-              ),
-              CourseCard(
-                title: "Business",
-                imagePath: "assets/imgs/business.png",
-              ),
-              CourseCard(title: "friend", imagePath: "assets/imgs/friend.png"),
-              CourseCard(
-                title: "lifestyle",
-                imagePath: "assets/imgs/lifestyle.png",
-              ),
-              CourseCard(title: "music", imagePath: "assets/imgs/music.png"),
-              CourseCard(title: "film", imagePath: "assets/imgs/film.png"),
-            ],
+        coursesState.when(
+          loading: () => const SizedBox(
+            height: 120,
+            child: Center(child: CircularProgressIndicator()),
           ),
+          error: (e, _) => Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text('Error: $e'),
+          ),
+          data: (courses) {
+            final displayCourses = courses.take(6).toList();
+
+            return SizedBox(
+              height: 120,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: displayCourses.length,
+                itemBuilder: (context, index) {
+                  final course = displayCourses[index];
+
+                  return CourseCard(
+                    title: course.title,
+                    imagePath: course.imagePath,
+                  );
+                },
+              ),
+            );
+          },
         ),
       ],
     );

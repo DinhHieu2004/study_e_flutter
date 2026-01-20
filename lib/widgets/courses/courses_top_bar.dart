@@ -7,7 +7,7 @@ class CoursesTopBar extends StatelessWidget {
   const CoursesTopBar({
     super.key,
     this.onClose,
-    this.title = "Courses",
+    this.title = "Lesson with topics",
   });
 
   @override

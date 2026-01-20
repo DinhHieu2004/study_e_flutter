@@ -33,6 +33,7 @@ dependencies:
   http: ^1.2.0
   flutter_riverpod: ^2.5.1
   riverpod_annotation: ^2.5.1
+  audioplayers: ^6.0.0
   dio: ^5.4.0
   flutter_tts: ^4.2.2
   speech_to_text: ^7.3.0
@@ -42,14 +43,17 @@ dependencies:
 
   google_mlkit_commons: ^0.9.0
   google_mlkit_object_detection: ^0.14.0
-  file_picker: ^8.1.2 
+  file_picker: ^8.1.2
   path_provider: ^2.1.5
-
 
   firebase_core: ^3.4.1
   firebase_auth: ^5.1.0
 
   google_sign_in: ^6.2.1
+
+  video_player: ^2.8.6
+  chewie: ^1.8.5
+  just_audio: ^0.9.38
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
