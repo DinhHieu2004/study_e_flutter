@@ -1,18 +1,20 @@
 class VocabularyResponse {
-  final int id;
-  final String word;
-  final String meaning; 
-  final String example; 
-  final String exampleMeaning; 
-  final String phonetic;
-  final String audioUrl;
-  final String imageUrl;
+  int id;
+  String word;
+  String meaning;
+  String example;
+  int topicId;
+  String exampleMeaning;
+  String phonetic;
+  String audioUrl;
+  String imageUrl;
 
   VocabularyResponse({
     required this.id,
     required this.word,
     required this.meaning,
     required this.example,
+    this.topicId = 0,
     required this.exampleMeaning,
     required this.phonetic,
     required this.audioUrl,
@@ -29,6 +31,19 @@ class VocabularyResponse {
       phonetic: json['phonetic'] as String? ?? '',
       audioUrl: json['audioUrl'] as String? ?? '',
       imageUrl: json['imageUrl'] as String? ?? '',
+      topicId: json['topicId'] ?? 0,
     );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'word': word,
+      'meaning': meaning,
+      'phonetic': phonetic,
+      'example': example,
+      'exampleMeaning': exampleMeaning,
+      'imageUrl': imageUrl,
+      'audioUrl': audioUrl,
+      'topicId': topicId,
+    };
   }
 }

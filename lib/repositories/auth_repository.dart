@@ -61,6 +61,11 @@ class AuthRepository {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('jwt_token', data['token']);
       await prefs.setString('uid', data['uid']);
+      final fbUser = _service.currentUser;
+      if (fbUser != null) {
+        await prefs.setString('email', fbUser.email ?? '');
+        await prefs.setString('name', fbUser.displayName ?? '');
+      }
 
       debugPrint('[AUTH] JWT saved');
     } catch (e) {
