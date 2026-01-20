@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'question_mgt_admin_page.dart';
+import 'lesson_mgt_admin_page.dart';
 
 class ManagementPage extends StatelessWidget {
   const ManagementPage({super.key});
@@ -63,7 +64,14 @@ class ManagementPage extends StatelessWidget {
                     'Quản lý\nBài học',
                     Icons.import_contacts_outlined,
                     Colors.green,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const LessonManagementPage(),
+                        ),
+                      );
+                    },
                   ),
                   _buildAdminCard(
                     context,
