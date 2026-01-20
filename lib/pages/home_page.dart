@@ -67,10 +67,8 @@ class HomePage extends ConsumerWidget {
             ),
           ],
         ),
-        // Bọc các icon trong một Row
         Row(
           children: [
-            // NÚT SCAN MỚI THÊM
             GestureDetector(
               onTap: () {
                 Navigator.push(

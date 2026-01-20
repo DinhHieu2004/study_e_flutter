@@ -1,4 +1,3 @@
-// lib/pages/result_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/quiz_provider.dart';
@@ -19,27 +18,38 @@ class ResultPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text("Kết quả"),
+        title: const Text(
+          "Kết quả",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.deepPurple,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF5B9FED), Color(0xFF4A8FE7)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         foregroundColor: Colors.white,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Score Card
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.deepPurple, Colors.deepPurple.shade300],
+              gradient: const LinearGradient(
+                colors: [Color(0xFF5B9FED), Color(0xFF4A8FE7)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.deepPurple.withOpacity(0.3),
+                  color: const Color(0xFF5B9FED).withOpacity(0.3),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -53,7 +63,7 @@ class ResultPage extends ConsumerWidget {
                   "Điểm của bạn",
                   style: TextStyle(
                     fontSize: 18,
-                    color: Colors.white70,
+                    color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -91,18 +101,35 @@ class ResultPage extends ConsumerWidget {
 
           const SizedBox(height: 24),
 
-          // Questions List
-          ...quizState.questions.asMap().entries.map((entry) {
-            final index = entry.key;
-            final q = entry.value;
-            final correct = q.userAnswer == q.correctAnswer;
-
+          ...quizState.questions.map((q) {
             return QuestionCard(
               questionData: q,
-              onSelectAnswer:null,
+              onSelectAnswer: null,
               showGemini: true,
             );
           }).toList(),
+          
+          const SizedBox(height: 20),
+          
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5B9FED),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                "Làm bài tập khác",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
         ],
       ),
     );
