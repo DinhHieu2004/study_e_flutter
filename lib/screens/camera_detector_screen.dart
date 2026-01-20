@@ -1,199 +1,172 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:flutter/services.dart';
-import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
-import '../widgets/words/object_detector_painter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/detected_provider.dart';
 
-class CameraDetectorScreen extends StatefulWidget {
+class CameraDetectorScreen extends ConsumerStatefulWidget {
   const CameraDetectorScreen({super.key});
 
   @override
-  State<CameraDetectorScreen> createState() => _CameraDetectorScreenState();
+  ConsumerState<CameraDetectorScreen> createState() =>
+      _CameraDetectorScreenState();
 }
 
-class _CameraDetectorScreenState extends State<CameraDetectorScreen> {
+class _CameraDetectorScreenState extends ConsumerState<CameraDetectorScreen> {
   CameraController? _controller;
-  ObjectDetector? _objectDetector;
-  bool _isBusy = false;
-  List<DetectedObject> _objects = [];
-  Map<String, dynamic> _dictionary = {};
-  bool _isDetecting = false;
-  bool _isDisposed = false; // Thêm flag này
 
   @override
   void initState() {
     super.initState();
-    _initEverything();
+    _initCamera();
   }
 
-  Future<void> _initEverything() async {
+  Future<void> _initCamera() async {
     try {
-      final String response = await rootBundle.loadString(
-        'assets/data/dictionary.json',
-      );
-      _dictionary = json.decode(response);
-
       final cameras = await availableCameras();
-      
-      if (_isDisposed) return; // Kiểm tra trước khi khởi tạo
-      
       _controller = CameraController(
         cameras[0],
-        ResolutionPreset.medium,
+        ResolutionPreset.high,
         enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.jpeg,
       );
-      
       await _controller?.initialize();
-      
-      if (_isDisposed) {
-        _controller?.dispose();
-        return;
-      }
-
-      final options = ObjectDetectorOptions(
-        mode: DetectionMode.single,
-        classifyObjects: true,
-        multipleObjects: true,
-      );
-      _objectDetector = ObjectDetector(options: options);
-
       if (mounted) setState(() {});
-      
-      // Tự động bật nhận diện
-      _isDetecting = true;
-      _startContinuousDetection();
     } catch (e) {
-      debugPrint("Lỗi khởi tạo: $e");
+      debugPrint("Lỗi khởi tạo Camera: $e");
     }
   }
 
-  Future<void> _startContinuousDetection() async {
-    while (!_isDisposed && mounted && _controller != null) {
-      if (_isDetecting && !_isBusy) {
-        await _captureAndDetect();
-      }
-      await Future.delayed(const Duration(milliseconds: 800)); // Tăng thời gian delay
-    }
-  }
+  Future<void> _onCapturePressed() async {
+    if (_controller == null || !_controller!.value.isInitialized) return;
 
-  Future<void> _captureAndDetect() async {
-    // Kiểm tra kỹ trước khi chụp
-    if (_isDisposed || 
-        _isBusy || 
-        _objectDetector == null || 
-        _controller == null || 
-        !_controller!.value.isInitialized) {
-      return;
-    }
-    
-    _isBusy = true;
-    
     try {
       final XFile imageFile = await _controller!.takePicture();
-      
-      // Kiểm tra lại sau khi chụp xong
-      if (_isDisposed) {
-        await File(imageFile.path).delete();
-        return;
+
+      await _controller!.pausePreview();
+
+      await ref
+          .read(geminiProvider.notifier)
+          .identifyImage(File(imageFile.path));
+
+      final state = ref.read(geminiProvider);
+
+      if (state.word != null && mounted) {
+        _showResultSheet(context, state.word!);
+      } else if (state.error != null) {
+        await _controller!.resumePreview();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(state.error!)));
       }
-      
-      final inputImage = InputImage.fromFilePath(imageFile.path);
-      final objects = await _objectDetector!.processImage(inputImage);
-      
-      // Xóa file ngay sau khi xử lý
+
       await File(imageFile.path).delete();
-      
-      if (mounted && !_isDisposed) {
-        setState(() {
-          _objects = objects;
-        });
-      }
-      
     } catch (e) {
-      debugPrint("Lỗi nhận diện: $e");
-    } finally {
-      _isBusy = false;
+      debugPrint("Lỗi xử lý: $e");
     }
+  }
+
+  void _showResultSheet(BuildContext context, dynamic word) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              word.en.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+            Text(
+              word.ipa,
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+            const Divider(height: 30),
+            Text(word.vn, style: const TextStyle(fontSize: 20)),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await _controller!.resumePreview();
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+              ),
+              child: const Text("Tiếp tục chụp"),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final geminiState = ref.watch(geminiProvider);
+
     if (_controller == null || !_controller!.value.isInitialized) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Vật thể quanh ta"),
-        actions: [
-          IconButton(
-            icon: Icon(_isDetecting ? Icons.pause : Icons.play_arrow),
-            onPressed: () {
-              setState(() {
-                _isDetecting = !_isDetecting;
-              });
-            },
-          ),
-        ],
+        title: const Text("Nhận diện vật thể AI"),
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        elevation: 2,
       ),
       body: Stack(
         fit: StackFit.expand,
         children: [
           CameraPreview(_controller!),
-          
-          // Vẽ khung nhận diện
-          if (_objects.isNotEmpty)
-            CustomPaint(
-              painter: ObjectDetectorPainter(
-                _objects,
-                Size(
-                  _controller!.value.previewSize!.height,
-                  _controller!.value.previewSize!.width,
+
+          if (geminiState.loading)
+            Container(
+              color: Colors.black45,
+              child: const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(color: Colors.white),
+                    SizedBox(height: 15),
+                    Text(
+                      "AI đang phân tích ảnh...",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
                 ),
-                _dictionary,
               ),
             ),
-          
-          // Trạng thái
+
           Positioned(
-            bottom: 20,
-            left: 20,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_isDetecting && !_isBusy)
-                    const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.greenAccent),
-                      ),
-                    ),
-                  if (_isDetecting && !_isBusy) const SizedBox(width: 8),
-                  Text(
-                    _isDetecting 
-                      ? "Nhận diện: ${_objects.length} vật thể"
-                      : "Tạm dừng",
-                    style: TextStyle(
-                      color: _isDetecting ? Colors.greenAccent : Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+            bottom: 50,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: GestureDetector(
+                onTap: geminiState.loading ? null : _onCapturePressed,
+                child: Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 5),
+                    color: Colors.white.withOpacity(0.3),
                   ),
-                ],
+                  child: const Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
               ),
             ),
           ),
@@ -204,15 +177,7 @@ class _CameraDetectorScreenState extends State<CameraDetectorScreen> {
 
   @override
   void dispose() {
-    _isDisposed = true; // Đánh dấu đã dispose
-    _isDetecting = false; // Dừng nhận diện
-    
-    // Đợi một chút để đảm bảo vòng lặp dừng
-    Future.delayed(const Duration(milliseconds: 100), () {
-      _controller?.dispose();
-      _objectDetector?.close();
-    });
-    
+    _controller?.dispose();
     super.dispose();
   }
 }

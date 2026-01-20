@@ -3,7 +3,6 @@ import '../models/quiz_question.dart';
 import '../repositories/quiz_repository.dart';
 import '../models/quiz_result_request.dart';
 
-// Thêm phương pháp copyWith để cập nhật state dễ dàng hơn
 class QuizState {
   final bool loading;
   final List<QuizQuestion> questions;
@@ -54,16 +53,12 @@ class QuizNotifier extends StateNotifier<QuizState> {
     }
   }
 
-  // SỬA LỖI CHÍNH TẠI ĐÂY: Logic chọn đáp án
   void selectAnswer(int index, String answer) {
-    // 1. Tạo bản sao của danh sách
     final List<QuizQuestion> updatedQuestions = List.from(state.questions);
     
-    // 2. Cập nhật câu hỏi tại vị trí index bằng cách gán lại (nếu có hàm copyWith trong model thì tốt nhất)
     updatedQuestions[index].userAnswer = answer;
 
-    // 3. Gán lại state bằng một Instance mới hoàn toàn của QuizState
-    // Riverpod so sánh "Instance A != Instance B" để quyết định Rebuild UI
+   
     state = state.copyWith(questions: updatedQuestions);
   }
 

@@ -25,7 +25,11 @@ class _QuizQuestionPageState extends ConsumerState<QuizQuestionPage> {
     final quizState = ref.watch(quizProvider);
 
     if (quizState.loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xFF5B9FED)),
+        ),
+      );
     }
 
     if (quizState.error != null) {
@@ -37,16 +41,36 @@ class _QuizQuestionPageState extends ConsumerState<QuizQuestionPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("English Quiz")),
+      appBar: AppBar(
+        title: const Text(
+          "English Quiz",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF5B9FED), Color(0xFF4A8FE7)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body: Column(
         children: [
           LinearProgressIndicator(
+            backgroundColor: Colors.blue.shade50,
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF5B9FED)),
             value:
                 quizState.questions.where((q) => q.userAnswer != null).length /
                 quizState.questions.length,
           ),
           Expanded(
             child: ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 10),
               itemCount: quizState.questions.length,
               itemBuilder: (context, index) {
                 final q = quizState.questions[index];
@@ -60,10 +84,21 @@ class _QuizQuestionPageState extends ConsumerState<QuizQuestionPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             child: SizedBox(
               width: double.infinity,
+              height: 56,
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(
+                    0xFF5B9FED,
+                  ), 
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                ),
                 onPressed: () async {
                   _stopwatch.stop();
                   await ref
@@ -77,7 +112,10 @@ class _QuizQuestionPageState extends ConsumerState<QuizQuestionPage> {
                     MaterialPageRoute(builder: (_) => const ResultPage()),
                   );
                 },
-                child: const Text("Nộp bài"),
+                child: const Text(
+                  "Nộp bài",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),
@@ -86,5 +124,3 @@ class _QuizQuestionPageState extends ConsumerState<QuizQuestionPage> {
     );
   }
 }
-
-

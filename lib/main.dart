@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
       scrollBehavior: AppScrollBehavior(),
       home: AuthGate(),
       // home: MainLayout(),
+
     );
   }
 }

@@ -234,18 +234,27 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => const Text("Lỗi tải category"),
               data: (categories) => Container(
+                width: double
+                    .infinity, 
                 decoration: _dropdownBoxDecoration(),
                 child: DropdownButtonFormField<Category?>(
+                  isExpanded: true,
                   value: selectedCategory,
                   decoration: _dropdownInputDecoration("Select category"),
                   dropdownColor: Colors.white,
                   items: [
                     const DropdownMenuItem<Category?>(
                       value: null,
-                      child: Text("Trộn"),
+                      child: Text("Trộn", overflow: TextOverflow.ellipsis),
                     ),
                     ...categories.map(
-                      (c) => DropdownMenuItem(value: c, child: Text(c.name)),
+                      (c) => DropdownMenuItem(
+                        value: c,
+                        child: Text(
+                          c.name,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ),
                   ],
                   onChanged: (v) => setState(() => selectedCategory = v),
