@@ -16,7 +16,7 @@ class FirebaseRegisterResult {
 
 class FirebaseAuthService {
   final _auth = FirebaseAuth.instance;
-
+  User? get currentUser => _auth.currentUser;
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
   Future<String> login(String email, String password) async {

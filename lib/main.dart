@@ -3,7 +3,7 @@ import 'package:flutter_application_1/pages/lessons_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
 import 'pages/home_page.dart';
-import 'pages/search_page.dart';
+import 'pages/flashcard_home_page.dart';
 import 'pages/exercise_page.dart';
 import 'pages/profile_page.dart';
 import '../../widgets/auth/auth_gate.dart';
@@ -77,7 +77,7 @@ class _MainLayoutState extends State<MainLayout> {
       case 1:
         return LessonsPage(onClose: () => _setTab(0));
       case 2:
-        return const SearchPage();
+        return FlashcardHomePage(onClose: () => _setTab(0));
       case 3:
         return const ExercisePage();
       case 4:
@@ -151,8 +151,8 @@ class _MainLayoutState extends State<MainLayout> {
                 label: "Lessons",
               ),
               const BottomNavigationBarItem(
-                icon: Icon(Icons.search),
-                label: "Search",
+                icon: Icon(Icons.style),
+                label: "Vocabulary Card",
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.article_outlined),

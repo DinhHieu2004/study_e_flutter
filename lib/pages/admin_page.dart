@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'question_mgt_admin_page.dart';
 import 'lesson_mgt_admin_page.dart';
+import 'vocabulary_card_admin_page.dart';
 
 class ManagementPage extends StatelessWidget {
   const ManagementPage({super.key});
@@ -79,6 +80,20 @@ class ManagementPage extends StatelessWidget {
                     Icons.translate_outlined,
                     Colors.purple,
                     onTap: () {},
+                  ),
+                  _buildAdminCard(
+                    context,
+                    'Quản lý\nVocabulary card',
+                    Icons.translate_outlined,
+                    Colors.purple,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const VocabularyManagementPage(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
