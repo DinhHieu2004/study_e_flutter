@@ -122,8 +122,20 @@ class _FlashcardUnlockPageState extends State<FlashcardUnlockPage> {
 
     return _HoverCard(
       onTap: canTap
-          ? () {
-              showCardSplitOverlay(context, cardId: card.id);
+          ? () async {
+              final result = await showCardSplitOverlay(
+                context,
+                cardId: card.id,
+              );
+
+              if (result != null) {
+                setState(() {
+                  final index = _cards.indexWhere((c) => c.id == card.id);
+                  if (index != -1) {
+                    _cards[index] = result;
+                  }
+                });
+              }
             }
           : null,
       child: card.unlocked

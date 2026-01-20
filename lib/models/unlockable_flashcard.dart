@@ -34,4 +34,22 @@ class UnlockableFlashcard {
           : null,
     );
   }
+  UnlockableFlashcard copyWith({
+    bool? unlocked,
+    String? word,
+    String? phonetic,
+    String? imageUrl,
+    int? remainingAttempts,
+    DateTime? lockedUntil,
+  }) {
+    return UnlockableFlashcard(
+      id: id,
+      unlocked: unlocked ?? this.unlocked,
+      word: word ?? this.word,
+      phonetic: phonetic ?? this.phonetic,
+      imageUrl: imageUrl ?? this.imageUrl,
+      remainingAttempts: remainingAttempts ?? this.remainingAttempts,
+      lockedUntil: lockedUntil ?? this.lockedUntil,
+    );
+  }
 }

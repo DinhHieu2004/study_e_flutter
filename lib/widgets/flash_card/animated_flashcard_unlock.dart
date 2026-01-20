@@ -4,8 +4,17 @@ import 'unlocked_flashcard_tile.dart';
 
 class AnimatedFlashcardUnlock extends StatefulWidget {
   final bool unlocked;
+  final String? word;
+  final String? phonetic;
+  final String? imageUrl;
 
-  const AnimatedFlashcardUnlock({super.key, required this.unlocked});
+  const AnimatedFlashcardUnlock({
+    super.key,
+    required this.unlocked,
+    this.word,
+    this.phonetic,
+    this.imageUrl,
+  });
 
   @override
   State<AnimatedFlashcardUnlock> createState() =>
@@ -17,8 +26,6 @@ class _AnimatedFlashcardUnlockState extends State<AnimatedFlashcardUnlock>
   late AnimationController _controller;
   late Animation<double> _scale;
   late Animation<double> _glowOpacity;
-
-  bool _played = false;
 
   @override
   void initState() {
@@ -56,8 +63,13 @@ class _AnimatedFlashcardUnlockState extends State<AnimatedFlashcardUnlock>
   void didUpdateWidget(covariant AnimatedFlashcardUnlock oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.unlocked && !_played) {
-      _played = true;
+    /// ▶️ chạy animation khi:
+    /// 1. vừa unlock
+    /// 2. hoặc word vừa được set
+    final justUnlocked = !oldWidget.unlocked && widget.unlocked;
+    final wordJustArrived = oldWidget.word == null && widget.word != null;
+
+    if (justUnlocked || wordJustArrived) {
       _controller.forward(from: 0);
     }
   }
@@ -70,6 +82,7 @@ class _AnimatedFlashcardUnlockState extends State<AnimatedFlashcardUnlock>
         return Stack(
           alignment: Alignment.center,
           children: [
+            /// ✨ Glow
             if (widget.unlocked)
               Opacity(
                 opacity: _glowOpacity.value,
@@ -89,6 +102,7 @@ class _AnimatedFlashcardUnlockState extends State<AnimatedFlashcardUnlock>
                 ),
               ),
 
+            /// 📦 Card
             Transform.scale(
               scale: widget.unlocked ? _scale.value : 1.0,
               child: AnimatedSwitcher(
@@ -96,11 +110,11 @@ class _AnimatedFlashcardUnlockState extends State<AnimatedFlashcardUnlock>
                 switchInCurve: Curves.easeOut,
                 switchOutCurve: Curves.easeIn,
                 child: widget.unlocked
-                    ? const UnlockedFlashcardTile(
-                        key: ValueKey('unlocked'),
-                        word: 'APPLE',
-                        phonetic: '/ˈæp.əl/',
-                        imageUrl: null,
+                    ? UnlockedFlashcardTile(
+                        key: ValueKey('unlocked_${widget.word ?? 'empty'}'),
+                        word: widget.word ?? '',
+                        phonetic: widget.phonetic,
+                        imageUrl: widget.imageUrl,
                         large: true,
                       )
                     : const LockedFlashcardTile(
@@ -110,7 +124,8 @@ class _AnimatedFlashcardUnlockState extends State<AnimatedFlashcardUnlock>
               ),
             ),
 
-            if (widget.unlocked && _controller.isAnimating)
+            /// 🔓 Icon
+            if (widget.unlocked)
               Positioned(
                 top: 12,
                 right: 12,
