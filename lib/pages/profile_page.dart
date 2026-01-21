@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'admin_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repositories/auth_repository.dart';
@@ -12,6 +13,21 @@ final firebaseAuthServiceProvider = Provider<FirebaseAuthService>(
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepository(),
 );
+Future<String> getDisplayName() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  final name = prefs.getString('name');
+  if (name != null && name.trim().isNotEmpty) {
+    return name;
+  }
+
+  final email = prefs.getString('email');
+  if (email != null && email.contains('@')) {
+    return email.split('@').first;
+  }
+
+  return 'User';
+}
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -36,7 +52,7 @@ class ProfilePage extends ConsumerWidget {
         child: Column(
           children: [
             Row(
-              children: const [
+              children: [
                 CircleAvatar(
                   radius: 40,
                   backgroundImage: NetworkImage(
@@ -47,16 +63,26 @@ class ProfilePage extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Maya',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    FutureBuilder<String>(
+                      future: getDisplayName(),
+                      builder: (context, snapshot) {
+                        return Text(
+                          snapshot.data ?? 'User',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
                     ),
-                    Text(
-                      'maya.learning@email.com',
-                      style: TextStyle(color: Colors.grey),
+                    FutureBuilder<SharedPreferences>(
+                      future: SharedPreferences.getInstance(),
+                      builder: (context, snapshot) {
+                        return Text(
+                          snapshot.data?.getString('email') ?? '',
+                          style: const TextStyle(color: Colors.grey),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -141,8 +167,8 @@ class ProfilePage extends ConsumerWidget {
                 ),
               ),
               onPressed: () async {
-                await firebaseService.logout(); // Firebase
-                await authRepo.logout(); // Backend + clear JWT
+                await firebaseService.logout();
+                await authRepo.logout();
               },
             ),
           ],

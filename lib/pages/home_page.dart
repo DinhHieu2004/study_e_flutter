@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/providers/home_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_colors.dart';
 import '../widgets/lessons/lesson_card.dart';
 import '../widgets/videos/video_card.dart';
@@ -49,6 +50,22 @@ class HomePage extends ConsumerWidget {
     );
   }
 
+  Future<String> getDisplayName() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final name = prefs.getString('name');
+    if (name != null && name.trim().isNotEmpty) {
+      return name;
+    }
+
+    final email = prefs.getString('email');
+    if (email != null && email.contains('@')) {
+      return email.split('@').first;
+    }
+
+    return 'User';
+  }
+
   Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -56,9 +73,19 @@ class HomePage extends ConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Hi, Maya",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            FutureBuilder<String>(
+              future: getDisplayName(),
+              builder: (context, snapshot) {
+                final displayName = snapshot.data ?? 'User';
+
+                return Text(
+                  'Hi, $displayName',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 4),
             const Text(
@@ -67,10 +94,8 @@ class HomePage extends ConsumerWidget {
             ),
           ],
         ),
-        // Bọc các icon trong một Row
         Row(
           children: [
-            // NÚT SCAN MỚI THÊM
             GestureDetector(
               onTap: () {
                 Navigator.push(

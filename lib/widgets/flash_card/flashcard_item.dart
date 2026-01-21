@@ -1,11 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../models/flash_card.dart';
-import '../../controllers/audio_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FlashcardItem extends StatefulWidget {
   final Flashcard card;
-  const FlashcardItem({super.key, required this.card});
+  final bool large;
+
+  const FlashcardItem({super.key, required this.card, this.large = false});
 
   @override
   State<FlashcardItem> createState() => _FlashcardItemState();
@@ -68,22 +70,25 @@ class _FlashcardItemState extends State<FlashcardItem>
       children: [
         Image.network(
           widget.card.imageUrl,
-          height: 120,
+          height: widget.large ? 220 : 160,
           fit: BoxFit.contain,
           errorBuilder: (_, __, ___) =>
-              const Icon(Icons.image_not_supported, size: 80),
+              const Icon(Icons.image_not_supported, size: 100),
         ),
         const SizedBox(height: 12),
         Text(
           widget.card.word,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: widget.large ? 34 : 28,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 4),
         Text(widget.card.phonetic, style: const TextStyle(color: Colors.grey)),
         IconButton(
           icon: const Icon(Icons.volume_up),
           onPressed: () {
-            AudioService.play(widget.card.audioUrl);
+            launchUrl(Uri.parse(widget.card.audioUrl));
           },
         ),
       ],
@@ -98,7 +103,10 @@ class _FlashcardItemState extends State<FlashcardItem>
         children: [
           Text(
             widget.card.meaning,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: widget.large ? 24 : 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
           Text(widget.card.example),
@@ -112,20 +120,31 @@ class _FlashcardItemState extends State<FlashcardItem>
     ),
   );
 
-  Widget _card(Widget child) => AspectRatio(
-    aspectRatio: 3 / 4,
-    child: Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(blurRadius: 8, color: Colors.black26, offset: Offset(0, 4)),
-        ],
+  Widget _card(Widget child) {
+    final double radius = widget.large ? 22 : 16;
+    final EdgeInsets margin = widget.large
+        ? EdgeInsets.zero
+        : const EdgeInsets.symmetric(horizontal: 8);
+
+    return AspectRatio(
+      aspectRatio: 3 / 4,
+      child: Container(
+        margin: margin,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(radius),
+          boxShadow: const [
+            BoxShadow(
+              blurRadius: 14,
+              color: Colors.black26,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+        child: child,
       ),
-      child: child,
-    ),
-  );
+    );
+  }
 
   @override
   void dispose() {
