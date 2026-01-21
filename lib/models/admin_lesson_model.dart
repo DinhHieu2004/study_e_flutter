@@ -7,7 +7,7 @@ class AdminLessonModel {
   final String? audioUrl;
   final int topicId;
   final String topicName;
-  final String status; 
+  final String status;
   final bool premium;
 
   AdminLessonModel({
@@ -47,8 +47,7 @@ class AdminLessonModel {
       'audioUrl': audioUrl,
       'topicId': topicId,
       'status': status,
-      'premium': premium,
-      'isPremium': premium,
+      'premium': premium, 
     };
   }
 
