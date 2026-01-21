@@ -8,38 +8,36 @@ class DioClient {
 
   static String get _baseUrl => kIsWeb ? urlForWeb : urlForAndroid;
 
-  static final Dio dio =
-      Dio(
-          BaseOptions(
-            baseUrl: _baseUrl,
-            connectTimeout: const Duration(seconds: 30),
-            receiveTimeout: const Duration(seconds: 30),
-            headers: {'Content-Type': 'application/json'},
-          ),
-        )
-        ..interceptors.add(
-          InterceptorsWrapper(
-            onRequest: (options, handler) async {
-              final path = options.path;
+  static final Dio dio = Dio(
+    BaseOptions(
+      baseUrl: _baseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+      headers: {'Accept': 'application/json'},
+    ),
+  )
+    ..interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final path = options.path;
 
-              final isAuthEndpoint =
-                  path.contains('/auth/login') || path.contains('/auth/signUp');
+          final isAuthEndpoint =
+              path.contains('/auth/login') || path.contains('/auth/signUp');
 
-              if (!isAuthEndpoint) {
-                final prefs = await SharedPreferences.getInstance();
-                final token = prefs.getString('jwt_token');
+          final isFileEndpoint =
+              path.contains('/api/files') || path.contains('/studyE/api/files');
 
-                if (token != null && token.isNotEmpty) {
-                  print('Attaching token to request: $token');
-                  options.headers['Authorization'] = 'Bearer $token';
-                }
-              }
+          if (!isAuthEndpoint && !isFileEndpoint) {
+            final prefs = await SharedPreferences.getInstance();
+            final token = prefs.getString('jwt_token');
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
+          }
 
-              return handler.next(options);
-            },
-          ),
-        )
-        ..interceptors.add(
-          LogInterceptor(requestBody: true, responseBody: true),
-        );
+          return handler.next(options);
+        },
+      ),
+    )
+    ..interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 }
